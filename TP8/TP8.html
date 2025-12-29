@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <base target="_self">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système de Gestion Académique - Département d'Informatique | Université de Yaoundé I</title>
+    <meta name="description" content="Application web pour centraliser et automatiser la gestion des séances de cours et TD au département d'Informatique de l'Université de Yaoundé I">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#6B4C7A",
+                        secondary: "#2E2E2E",
+                        success: "#28A745",
+                        accent: "#8A6BA8",
+                        light: "#F8F9FA"
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    spacing: {
+                        '128': '32rem',
+                        '144': '36rem'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .calendar-day {
+            transition: all 0.2s ease;
+        }
+        .calendar-day:hover {
+            transform: scale(1.05);
+        }
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 text-secondary">
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo et titre -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white p-2 rounded-lg">
+                        <i class="fas fa-university text-primary text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Département d'Informatique</h1>
+                        <p class="text-sm text-gray-200">Université de Yaoundé I</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation principale -->
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('home')">Accueil</a>
+                    <a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('timetables')">Emplois du temps</a>
+                    <a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('announcements')">Annonces</a>
+                    <a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('about')">À propos</a>
+                </nav>
+                
+                <!-- Boutons d'authentification -->
+                <div class="flex items-center space-x-4">
+                    <button class="hidden md:inline-block bg-white text-primary px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors" onclick="showLoginModal()">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+                    </button>
+                    <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu mobile -->
+    <div class="mobile-menu fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 md:hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xl font-bold text-primary">Menu</h2>
+                <button onclick="toggleMobileMenu()" class="text-secondary">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <nav class="space-y-4">
+                <a href="#" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="navigateTo('home')">
+                    <i class="fas fa-home mr-3"></i>Accueil
+                </a>
+                <a href="#" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="navigateTo('timetables')">
+                    <i class="fas fa-calendar-alt mr-3"></i>Emplois du temps
+                </a>
+                <a href="#" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="navigateTo('announcements')">
+                    <i class="fas fa-bullhorn mr-3"></i>Annonces
+                </a>
+                <a href="#" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="navigateTo('about')">
+                    <i class="fas fa-info-circle mr-3"></i>À propos
+                </a>
+                <hr class="my-4">
+                <button class="w-full bg-primary text-white px-4 py-3 rounded-lg font-medium hover:bg-accent transition-colors" onclick="showLoginModal()">
+                    <i class="fas fa-sign-in-alt mr-2"></i>Connexion
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Overlay pour menu mobile -->
+    <div class="mobile-overlay fixed inset-0 bg-black bg-opacity-50 z-40 hidden" onclick="toggleMobileMenu()"></div>
+
+    <!-- Contenu principal -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Section d'accueil -->
+        <section id="home-section" class="mb-12">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Système de Gestion Académique</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    Centralisez et automatisez la gestion des séances de cours et TD pour le département d'Informatique de l'Université de Yaoundé I
+                </p>
+            </div>
+            
+            <!-- Cartes de rôles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-primary">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user-shield text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-primary mb-2">Administrateur</h3>
+                        <p class="text-gray-600">Gestion globale, planification, rapports et notifications</p>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><i class="fas fa-check text-success mr-2"></i>Tableau de bord global</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Gestion des utilisateurs</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Planification des séances</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-accent">
+                    <div class="text-center mb-4">
+                        <div class="bg-accent text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-chalkboard-teacher text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-accent mb-2">Enseignant</h3>
+                        <p class="text-gray-600">Consultation emploi du temps, gestion séances, rapports</p>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><i class="fas fa-check text-success mr-2"></i>Emploi du temps personnel</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Gestion des séances</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Rédaction des rapports</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-success">
+                    <div class="text-center mb-4">
+                        <div class="bg-success text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user-tie text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-success mb-2">Délégué</h3>
+                        <p class="text-gray-600">Validation séances, communication, coordination</p>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><i class="fas fa-check text-success mr-2"></i>Validation des séances</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Communication groupe</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Suivi des activités</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-gray-400">
+                    <div class="text-center mb-4">
+                        <div class="bg-gray-400 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-user-graduate text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-600 mb-2">Étudiant</h3>
+                        <p class="text-gray-600">Consultation emplois du temps et annonces</p>
+                    </div>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li><i class="fas fa-check text-success mr-2"></i>Emplois du temps</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Annonces département</li>
+                        <li><i class="fas fa-check text-success mr-2"></i>Accès sans authentification</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Statistiques -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-12">
+                <h3 class="text-2xl font-bold text-primary mb-6">Aperçu du système</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-primary mb-2" id="session-count">0</div>
+                        <p class="text-gray-600">Séances planifiées</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-accent mb-2" id="teacher-count">0</div>
+                        <p class="text-gray-600">Enseignants actifs</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-success mb-2" id="group-count">0</div>
+                        <p class="text-gray-600">Groupes d'étudiants</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-gray-600 mb-2" id="room-count">0</div>
+                        <p class="text-gray-600">Salles disponibles</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section emplois du temps -->
+        <section id="timetables-section" class="mb-12 hidden">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-primary">Emplois du temps</h2>
+                <div class="flex space-x-4">
+                    <select class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <option>Sélectionner une filière</option>
+                        <option>Informatique Fondamentale</option>
+                        <option>Réseaux et Télécoms</option>
+                        <option>Génie Logiciel</option>
+                    </select>
+                    <select class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                        <option>Sélectionner un groupe</option>
+                        <option>Groupe 1</option>
+                        <option>Groupe 2</option>
+                        <option>Groupe 3</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Calendrier hebdomadaire -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+                <div class="bg-primary text-white p-4">
+                    <h3 class="text-xl font-bold">Semaine du 10 au 16 Mars 2024</h3>
+                </div>
+                <div class="p-4">
+                    <div class="grid grid-cols-8 gap-2">
+                        <div class="font-bold text-center py-2 text-gray-500">Heure</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Lun</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Mar</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Mer</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Jeu</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Ven</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Sam</div>
+                        <div class="font-bold text-center py-2 bg-gray-100 rounded">Dim</div>
+                        
+                        <!-- Lignes d'heures -->
+                        <div class="contents" id="timetable-rows">
+                            <!-- Les créneaux seront générés par JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Liste des séances -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-primary mb-4">Séances de la semaine</h3>
+                <div class="table-responsive">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="text-left p-3">Date & Heure</th>
+                                <th class="text-left p-3">UE</th>
+                                <th class="text-left p-3">Enseignant</th>
+                                <th class="text-left p-3">Salle</th>
+                                <th class="text-left p-3">Type</th>
+                                <th class="text-left p-3">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessions-list">
+                            <!-- Les séances seront générées par JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Section annonces -->
+        <section id="announcements-section" class="mb-12 hidden">
+            <h2 class="text-3xl font-bold text-primary mb-8">Annonces du département</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Les annonces seront générées par JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Section à propos -->
+        <section id="about-section" class="mb-12 hidden">
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-primary mb-6">À propos du système</h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-primary mb-4">Objectifs</h3>
+                        <p class="text-gray-700 mb-4">
+                            Cette application web a été développée pour répondre aux besoins de gestion académique du département d'Informatique de l'Université de Yaoundé I.
+                        </p>
+                        <ul class="space-y-3 text-gray-700">
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Réduire les conflits d'horaires entre les séances</li>
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Améliorer la coordination entre les différents acteurs</li>
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Assurer un suivi pédagogique fiable et transparent</li>
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Centraliser l'information académique</li>
+                            <li><i class="fas fa-check-circle text-success mr-2"></i>Automatiser les processus de gestion</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-bold text-primary mb-4">Fonctionnalités principales</h3>
+                        <div class="space-y-4">
+                            <div class="border-l-4 border-primary pl-4">
+                                <h4 class="font-bold text-lg">Planification des séances</h4>
+                                <p class="text-gray-700">Création et gestion des séances de cours et TD avec attribution automatique des salles</p>
+                            </div>
+                            <div class="border-l-4 border-accent pl-4">
+                                <h4 class="font-bold text-lg">Gestion des ressources</h4>
+                                <p class="text-gray-700">Administration des enseignants, salles, filières et groupes d'étudiants</p>
+                            </div>
+                            <div class="border-l-4 border-success pl-4">
+                                <h4 class="font-bold text-lg">Suivi pédagogique</h4>
+                                <p class="text-gray-700">Rapports de séance, suivi des présences et évaluation continue</p>
+                            </div>
+                            <div class="border-l-4 border-gray-400 pl-4">
+                                <h4 class="font-bold text-lg">Communication</h4>
+                                <p class="text-gray-700">Notifications ciblées et annonces départementales</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <h3 class="text-xl font-bold text-primary mb-4">Contact et support</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <i class="fas fa-envelope text-3xl text-primary mb-3"></i>
+                            <h4 class="font-bold">Email</h4>
+                            <p class="text-gray-700">support-info@uy1.cm</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-phone-alt text-3xl text-primary mb-3"></i>
+                            <h4 class="font-bold">Téléphone</h4>
+                            <p class="text-gray-700">+237 222 22 22 22</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-map-marker-alt text-3xl text-primary mb-3"></i>
+                            <h4 class="font-bold">Localisation</h4>
+                            <p class="text-gray-700">Département d'Informatique, Université de Yaoundé I</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white mt-12">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Département d'Informatique</h3>
+                    <p class="text-gray-200">
+                        Université de Yaoundé I<br>
+                        Système de Gestion Académique
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">Liens rapides</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('home')">Accueil</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('timetables')">Emplois du temps</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('announcements')">Annonces</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors" onclick="navigateTo('about')">À propos</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">Ressources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-accent transition-colors">Guide d'utilisation</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Politique de confidentialité</a></li>
+                        <li><a href="#" class="hover:text-accent transition-colors">Conditions d'utilisation</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">Contact</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-3"></i>
+                            <span>info@dept-info-uy1.cm</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt mr-3"></i>
+                            <span>+237 222 22 22 22</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-3"></i>
+                            <span>Université de Yaoundé I</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
+                <p>&copy; 2024 Département d'Informatique - Université de Yaoundé I. Tous droits réservés.</p>
+                <p class="mt-2">Système de Gestion Académique - Version 1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de connexion -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-primary">Connexion</h3>
+                    <button onclick="hideLoginModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+                
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="role">Rôle</label>
+                        <select id="role" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="">Sélectionner un rôle</option>
+                            <option value="admin">Administrateur</option>
+                            <option value="teacher">Enseignant</option>
+                            <option value="delegate">Délégué</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="username">Identifiant</label>
+                        <input type="text" id="username" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Votre identifiant">
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2" for="password">Mot de passe</label>
+                        <input type="password" id="password" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Votre mot de passe">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-accent transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Se connecter
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-gray-600">Les étudiants n'ont pas besoin de s'authentifier pour consulter les emplois du temps et annonces.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données de l'application
+        const appData = {
+            sessions: [
+                { "id": 1, "date": "2024-03-11", "time": "08:00-10:00", "ue": "Algorithmique avancée", "teacher": "Pr. Nkongo David", "room": "Amphi 502", "type": "Cours", "status": "Confirmée", "color": "bg-blue-100", "textColor": "text-blue-800" },
+                { "id": 2, "date": "2024-03-11", "time": "10:30-12:30", "ue": "Bases de données", "teacher": "Dr. Mvogo Alain", "room": "Salle 203", "type": "TD", "status": "Validée", "color": "bg-green-100", "textColor": "text-green-800" },
+                { "id": 3, "date": "2024-03-12", "time": "14:00-16:00", "ue": "Réseaux informatiques", "teacher": "Dr. Nana Yannick", "room": "Labo 301", "type": "TP", "status": "Planifiée", "color": "bg-yellow-100", "textColor": "text-yellow-800" },
+                { "id": 4, "date": "2024-03-13", "time": "08:00-10:00", "ue": "Intelligence artificielle", "teacher": "Pr. Ndongo Barthélémy", "room": "Amphi 501", "type": "Cours", "status": "Confirmée", "color": "bg-blue-100", "textColor": "text-blue-800" },
+                { "id": 5, "date": "2024-03-14", "time": "10:30-12:30", "ue": "Sécurité informatique", "teacher": "Dr. Tchakounté François", "room": "Salle 205", "type": "TD", "status": "Validée", "color": "bg-green-100", "textColor": "text-green-800" }
+            ],
+            announcements: [
+                { "id": 1, "title": "Réunion départementale", "date": "15 Mars 2024", "content": "Une réunion départementale est prévue le vendredi 15 mars à 10h dans l'amphithéâtre 500.", "icon": "fas fa-users", "color": "bg-primary" },
+                { "id": 2, "title": "Modification d'emploi du temps", "date": "12 Mars 2024", "content": "Le cours d'Algorithmique avancée du lundi 11 mars est reporté au mercredi 13 mars à la même heure.", "icon": "fas fa-calendar-alt", "color": "bg-accent" },
+                { "id": 3, "title": "Appel à projets", "date": "10 Mars 2024", "content": "Le département lance un appel à projets pour les étudiants de Master. Date limite de soumission : 30 avril 2024.", "icon": "fas fa-bullhorn", "color": "bg-success" },
+                { "id": 4, "title": "Maintenance système", "date": "8 Mars 2024", "content": "Le système sera indisponible le dimanche 10 mars de 22h à 2h pour maintenance technique.", "icon": "fas fa-tools", "color": "bg-gray-600" },
+                { "id": 5, "title": "Nouveaux enseignants", "date": "5 Mars 2024", "content": "Le département accueille deux nouveaux enseignants : Dr. Kamga Victor et Dr. Ngo Sack Françoise.", "icon": "fas fa-user-plus", "color": "bg-purple-600" },
+                { "id": 6, "title": "Bibliothèque numérique", "date": "1 Mars 2024", "content": "Accédez à la nouvelle bibliothèque numérique du département via le portail étudiant.", "icon": "fas fa-book", "color": "bg-indigo-600" }
+            ],
+            timetableHours: ["08:00-10:00", "10:30-12:30", "14:00-16:00", "16:30-18:30"],
+            days: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+        };
+
+        // Variables d'état
+        let currentSection = "home";
+        let mobileMenuActive = false;
+
+        // Initialisation
+        document.addEventListener("DOMContentLoaded", function() {
+            // Initialiser les compteurs
+            animateCounter("session-count", 124);
+            animateCounter("teacher-count", 28);
+            animateCounter("group-count", 16);
+            animateCounter("room-count", 42);
+            
+            // Générer le calendrier
+            generateTimetable();
+            
+            // Générer la liste des séances
+            generateSessionsList();
+            
+            // Générer les annonces
+            generateAnnouncements();
+            
+            // Gérer le formulaire de connexion
+            document.getElementById("login-form").addEventListener("submit", handleLogin);
+            
+            // Afficher la section d'accueil par défaut
+            showSection("home");
+        });
+
+        // Navigation entre sections
+        function navigateTo(section) {
+            showSection(section);
+            if (mobileMenuActive) {
+                toggleMobileMenu();
+            }
+            return false;
+        }
+
+        function showSection(section) {
+            // Cacher toutes les sections
+            document.getElementById("home-section").classList.add("hidden");
+            document.getElementById("timetables-section").classList.add("hidden");
+            document.getElementById("announcements-section").classList.add("hidden");
+            document.getElementById("about-section").classList.add("hidden");
+            
+            // Afficher la section demandée
+            document.getElementById(`${section}-section`).classList.remove("hidden");
+            currentSection = section;
+            
+            // Mettre à jour la navigation active
+            updateActiveNav();
+        }
+
+        function updateActiveNav() {
+            // Mettre à jour les liens de navigation
+            const navLinks = document.querySelectorAll("nav a, .mobile-menu a");
+            navLinks.forEach(link => {
+                const href = link.getAttribute("onclick");
+                if (href && href.includes(`'${currentSection}'`)) {
+                    link.classList.add("font-bold", "text-accent");
+                } else {
+                    link.classList.remove("font-bold", "text-accent");
+                }
+            });
+        }
+
+        // Gestion du menu mobile
+        function toggleMobileMenu() {
+            const mobileMenu = document.querySelector(".mobile-menu");
+            const overlay = document.querySelector(".mobile-overlay");
+            
+            mobileMenuActive = !mobileMenuActive;
+            
+            if (mobileMenuActive) {
+                mobileMenu.classList.add("active");
+                overlay.classList.remove("hidden");
+                document.body.style.overflow = "hidden";
+            } else {
+                mobileMenu.classList.remove("active");
+                overlay.classList.add("hidden");
+                document.body.style.overflow = "auto";
+            }
+        }
+
+        // Modal de connexion
+        function showLoginModal() {
+            document.getElementById("login-modal").classList.remove("hidden");
+            document.body.style.overflow = "hidden";
+        }
+
+        function hideLoginModal() {
+            document.getElementById("login-modal").classList.add("hidden");
+            document.body.style.overflow = "auto";
+        }
+
+        // Gestion de la connexion
+        function handleLogin(e) {
+            e.preventDefault();
+            
+            const role = document.getElementById("role").value;
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            
+            if (!role || !username || !password) {
+                alert("Veuillez remplir tous les champs");
+                return;
+            }
+            
+            // Simulation de connexion
+            const roleNames = {
+                "admin": "Administrateur",
+                "teacher": "Enseignant",
+                "delegate": "Délégué"
+            };
+            
+            alert(`Connexion réussie en tant que ${roleNames[role]}`);
+            hideLoginModal();
+            
+            // Réinitialiser le formulaire
+            document.getElementById("login-form").reset();
+        }
+
+        // Animation des compteurs
+        function animateCounter(elementId, target) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = target / 50;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 30);
+        }
+
+        // Génération du calendrier
+        function generateTimetable() {
+            const container = document.getElementById("timetable-rows");
+            container.innerHTML = "";
+            
+            appData.timetableHours.forEach(hour => {
+                // Créer la cellule d'heure
+                const hourRow = document.createElement("div");
+                hourRow.className = "contents";
+                
+                const hourCell = document.createElement("div");
+                hourCell.className = "font-medium text-center py-4 border-t border-gray-200";
+                hourCell.textContent = hour;
+                hourRow.appendChild(hourCell);
+                
+                // Créer les cellules pour chaque jour
+                for (let i = 0; i < 7; i++) {
+                    const dayCell = document.createElement("div");
+                    dayCell.className = "border-t border-gray-200 p-2";
+                    
+                    // Vérifier s'il y a une séance à cette heure ce jour-là
+                    const sessions = appData.sessions.filter(session => {
+                        const sessionDate = new Date(session.date);
+                        const dayOfWeek = sessionDate.getDay();
+                        // Ajustement: 0=Dimanche, 1=Lundi, etc.
+                        const adjustedDay = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+                        return adjustedDay === i && session.time === hour;
+                    });
+                    
+                    if (sessions.length > 0) {
+                        sessions.forEach(session => {
+                            const sessionDiv = document.createElement("div");
+                            sessionDiv.className = `${session.color} ${session.textColor} p-2 rounded-lg mb-1 text-sm calendar-day`;
+                            sessionDiv.innerHTML = `
+                                <div class="font-bold">${session.ue}</div>
+                                <div class="text-xs">${session.teacher}</div>
+                                <div class="text-xs">${session.room}</div>
+                            `;
+                            dayCell.appendChild(sessionDiv);
+                        });
+                    } else {
+                        dayCell.classList.add("bg-gray-50");
+                    }
+                    
+                    hourRow.appendChild(dayCell);
+                }
+                
+                container.appendChild(hourRow);
+            });
+        }
+
+        // Génération de la liste des séances
+        function generateSessionsList() {
+            const container = document.getElementById("sessions-list");
+            container.innerHTML = "";
+            
+            appData.sessions.forEach(session => {
+                const row = document.createElement("tr");
+                row.className = "border-b border-gray-200 hover:bg-gray-50";
+                row.innerHTML = `
+                    <td class="p-3">
+                        <div class="font-medium">${session.date}</div>
+                        <div class="text-sm text-gray-600">${session.time}</div>
+                    </td>
+                    <td class="p-3 font-medium">${session.ue}</td>
+                    <td class="p-3">${session.teacher}</td>
+                    <td class="p-3">${session.room}</td>
+                    <td class="p-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${session.color} ${session.textColor}">
+                            ${session.type}
+                        </span>
+                    </td>
+                    <td class="p-3">
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${
+                            session.status === "Validée" ? "bg-green-100 text-green-800" :
+                            session.status === "Confirmée" ? "bg-blue-100 text-blue-800" :
+                            "bg-yellow-100 text-yellow-800"
+                        }">
+                            ${session.status}
+                        </span>
+                    </td>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Génération des annonces
+        function generateAnnouncements() {
+            const container = document.querySelector("#announcements-section .grid");
+            container.innerHTML = "";
+            
+            appData.announcements.forEach(announcement => {
+                const card = document.createElement("div");
+                card.className = "bg-white rounded-xl shadow-lg overflow-hidden";
+                card.innerHTML = `
+                    <div class="${announcement.color} text-white p-4">
+                        <div class="flex justify-between items-center">
+                            <i class="${announcement.icon} text-2xl"></i>
+                            <span class="text-sm bg-white bg-opacity-20 px-2 py-1 rounded">${announcement.date}</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="text-xl font-bold text-primary mb-3">${announcement.title}</h4>
+                        <p class="text-gray-700">${announcement.content}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Gestion des clics en dehors du modal
+        window.onclick = function(event) {
+            const modal = document.getElementById("login-modal");
+            if (event.target === modal) {
+                hideLoginModal();
+            }
+        };
+    </script>
+</body>
+</html>

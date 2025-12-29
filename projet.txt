@@ -1,0 +1,249 @@
+🎓 Application Web – Suivi et Gestion des Séances de Cours et TD
+Université de Yaoundé I – Département d’Informatique
+Projet Génie Logiciel – L2 ICT
+🧩 CONTEXTE DU PROJET
+
+Développer une application web académique permettant de centraliser, automatiser et sécuriser la gestion des séances de cours et TD du département d’Informatique de l’Université de Yaoundé I.
+
+Le système doit résoudre :
+
+les conflits d’horaires,
+
+le manque de suivi pédagogique,
+
+la mauvaise coordination entre administration, enseignants et étudiants,
+
+l’absence de rapports fiables sur les séances effectuées.
+
+🎯 OBJECTIF GLOBAL
+
+Créer une plateforme simple, intuitive et accessible qui permet :
+
+la planification des séances,
+
+le suivi des cours et TD,
+
+la gestion des enseignants, salles et groupes,
+
+la génération de rapports pédagogiques,
+
+une communication fluide entre les acteurs.
+
+👥 ACTEURS & RÔLES UTILISATEURS
+1️⃣ Administrateur (Chef de département)
+
+Tableau de bord global
+
+Gestion des enseignants, filières, groupes, salles
+
+Planification et reprogrammation des séances
+
+Visualisation des conflits d’horaires
+
+Consultation des rapports pédagogiques
+
+Envoi de notifications
+
+Import des données via Excel
+
+2️⃣ Enseignant
+
+Accès à son emploi du temps personnel
+
+Gestion de ses séances (effectuée / annulée)
+
+Rédaction de rapports de séance
+
+Consultation des groupes et filières
+
+Réception de notifications
+
+3️⃣ Délégué
+
+Consultation des séances de son groupe
+
+Validation des séances effectuées
+
+Accès aux rapports de séance
+
+Communication avec enseignants et administration
+
+4️⃣ Étudiant
+
+Consultation des emplois du temps
+
+Réception des notifications (sans authentification)
+
+⚙️ FONCTIONNALITÉS PRINCIPALES
+🔹 Gestion
+
+Utilisateurs (Admin, Enseignant, Délégué)
+
+Filières
+
+UE
+
+Groupes
+
+Salles
+
+🔹 Planification
+
+Création des séances (jour, heure, salle, groupe, enseignant)
+
+Détection automatique des conflits d’horaires
+
+Emploi du temps par :
+
+filière
+
+groupe
+
+enseignant
+
+🔹 Suivi pédagogique
+
+Marquage des séances (effectuée / non effectuée)
+
+Rapports de séance
+
+Suivi de l’avancement des UE
+
+🔹 Communication
+
+Notifications ciblées (filière, groupe, enseignant)
+
+Alertes de modification ou annulation
+
+🗃️ MODÈLE DE DONNÉES (MLD)
+Entités principales
+
+UTILISATEUR (id, nom, prénom, email, rôle, statut)
+
+FILIERE (id, nom, code, enseignant_responsable)
+
+UE (id, code, nom, filière, enseignant)
+
+SALLE (id, numéro, capacité)
+
+GROUPE (id, nom, filière)
+
+SEANCE (id, UE, jour, heure_début, heure_fin, salle, groupe, enseignant)
+
+EMPLOI_DU_TEMPS (id, filière, groupe, semestre)
+
+RAPPORT_SEANCE (id, séance, enseignant, délégué, contenu, statut)
+
+NOTIFICATION (id, expéditeur, destinataire, contenu)
+
+ABSENCE_ENSEIGNANT (id, enseignant, séance, date, motif)
+
+🔐 CONTRAINTES NON FONCTIONNELLES
+
+Authentification obligatoire (sauf étudiants)
+
+Gestion de rôles et permissions
+
+Interface simple (enseignants non techniciens)
+
+Accessibilité 24h/24
+
+Compatible ordinateur, tablette et smartphone
+
+Support jusqu’à 50 000 utilisateurs (théorique)
+
+Sécurité et intégrité des données
+
+🎨 CHARTE GRAPHIQUE & PALETTE DE COULEURS
+Couleur principale (institutionnelle)
+
+Violet / Mauve
+
+Exemple HEX : #6B4C7A / #7A5C8E
+
+Utilisation :
+
+Header
+
+Footer
+
+Boutons principaux
+
+Titres
+
+Couleur secondaire
+
+Blanc
+
+HEX : #FFFFFF
+
+Utilisation :
+
+Fond principal
+
+Cartes
+
+Formulaires
+
+Texte
+
+Gris foncé / Noir doux
+
+HEX : #2E2E2E
+
+Utilisation :
+
+Texte principal
+
+Labels
+
+Actions positives
+
+Vert
+
+HEX : #28A745
+
+Utilisation :
+
+Boutons “Valider”
+
+Messages de succès
+
+🖥️ DESIGN UI / UX
+
+Interface épurée et professionnelle
+
+Navigation claire par rôle utilisateur
+
+Dashboard avec cartes et statistiques
+
+Formulaires simples
+
+Responsive design (desktop & mobile)
+
+Style académique et institutionnel
+
+
+🧠 LOGIQUE MÉTIER À AUTOMATISER
+
+Empêcher les conflits d’horaires
+
+Une séance = un seul rapport
+
+Un enseignant ne peut voir que ses données
+
+Le délégué agit uniquement sur son groupe
+
+L’administrateur a une vue globale
+
+✅ RÉSULTAT ATTENDU
+
+Une application web fonctionnelle, claire et sécurisée permettant :
+
+une meilleure organisation pédagogique,
+
+un suivi fiable des séances,
+
+une communication fluide,
+
+une prise de décision basée sur des données réelles.
