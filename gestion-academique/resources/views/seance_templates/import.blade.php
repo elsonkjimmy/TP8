@@ -39,25 +39,31 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="filiere_id">Filière par défaut (optionnel)</label>
-                    <select id="filiere_id" name="filiere_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">-- Utiliser les valeurs du CSV --</option>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="filiere_id">Filière <span class="text-red-500">*</span></label>
+                    <select id="filiere_id" name="filiere_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('filiere_id') border-red-500 @enderror">
+                        <option value="">-- Sélectionner une filière --</option>
                         @foreach ($filieres as $filiere)
-                            <option value="{{ $filiere->id }}">{{ $filiere->nom }}</option>
+                            <option value="{{ $filiere->id }}" {{ old('filiere_id') == $filiere->id ? 'selected' : '' }}>{{ $filiere->nom }}</option>
                         @endforeach
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">Si sélectionné, remplace la filière du CSV</p>
+                    <p class="text-xs text-gray-500 mt-1">La filière est obligatoire</p>
+                    @error('filiere_id')
+                        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe / Niveau par défaut (optionnel)</label>
-                    <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">-- Utiliser les valeurs du CSV --</option>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe / Niveau <span class="text-red-500">*</span></label>
+                    <select id="groupe_id" name="groupe_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror">
+                        <option value="">-- Sélectionner un groupe --</option>
                         @foreach ($groupes as $groupe)
-                            <option value="{{ $groupe->id }}">{{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})</option>
+                            <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ old('groupe_id') == $groupe->id ? 'selected' : '' }}>{{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})</option>
                         @endforeach
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">Si sélectionné, remplace le groupe du CSV</p>
+                    <p class="text-xs text-gray-500 mt-1">Le groupe est obligatoire</p>
+                    @error('groupe_id')
+                        <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -90,4 +96,30 @@
         </p>
     </div>
 </div>
+
+<script>
+    document.getElementById('filiere_id').addEventListener('change', function() {
+        const selectedFiliereId = this.value;
+        const groupeSelect = document.getElementById('groupe_id');
+        const groupeOptions = groupeSelect.querySelectorAll('option[data-filiere-id]');
+
+        // Afficher/masquer les options de groupe selon la filière sélectionnée
+        groupeOptions.forEach(option => {
+            if (selectedFiliereId === '' || option.dataset.filiereId === selectedFiliereId) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+
+        // Réinitialiser la sélection du groupe
+        groupeSelect.value = '';
+    });
+
+    // Initialiser l'affichage des groupes au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        const event = new Event('change');
+        document.getElementById('filiere_id').dispatchEvent(event);
+    });
+</script>
 @endsection

@@ -287,17 +287,17 @@ class SeanceTemplateController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:csv,txt|max:5120',
-            'filiere_id' => 'nullable|exists:filieres,id',
-            'groupe_id' => 'nullable|exists:groupes,id',
+            'filiere_id' => 'required|exists:filieres,id',
+            'groupe_id' => 'required|exists:groupes,id',
         ]);
 
         $file = $request->file('file');
-        $path = $file->store('imports');
         $defaultFiliereId = $request->get('filiere_id');
         $defaultGroupeId = $request->get('groupe_id');
 
         try {
-            $csv = \League\Csv\Reader::createFromPath(storage_path('app/' . $path));
+            // Utiliser le chemin réel du fichier uploadé
+            $csv = \League\Csv\Reader::createFromPath($file->getRealPath());
             $csv->setHeaderOffset(0);
 
             $dayMap = ['Lundi'=>1,'Mardi'=>2,'Mercredi'=>3,'Jeudi'=>4,'Vendredi'=>5,'Samedi'=>6];
@@ -339,14 +339,14 @@ class SeanceTemplateController extends Controller
                     // Créer ou mettre à jour
                     SeanceTemplate::updateOrCreate(
                         [
+                            'filiere_id' => $filiereId,
+                            'groupe_id' => $groupeId,
                             'ue_id' => $ue->id,
                             'day_of_week' => $dayOfWeek,
                             'start_time' => $record['Heure Début'],
                         ],
                         [
                             'end_time' => $record['Heure Fin'],
-                            'filiere_id' => $filiereId,
-                            'groupe_id' => $groupeId,
                             'salle_id' => $salle?->id,
                             'enseignant_id' => $enseignant?->id,
                             'comment' => $record['Commentaire'] ?? null,
@@ -360,8 +360,6 @@ class SeanceTemplateController extends Controller
                 }
             }
 
-            Storage::delete($path);
-
             $message = "Importation: $imported templates ajoutés/mis à jour";
             if ($skipped > 0) {
                 $message .= ", $skipped ignorés";
@@ -371,9 +369,24 @@ class SeanceTemplateController extends Controller
                 ->with('success', $message)
                 ->with('errors', $errors);
         } catch (\Exception $e) {
-            Storage::delete($path);
             return redirect()->route('seance-templates.import')
                 ->with('error', 'Erreur lors de la lecture du fichier: ' . $e->getMessage());
         }
+    }
+
+    public function deleteGroup(Request $request)
+    {
+        $filiere_id = $request->input('filiere_id');
+        $groupe_id = $request->input('groupe_id');
+
+        if (!$groupe_id) {
+            return redirect()->route('seance-templates.index')->with('error', 'Un groupe doit être sélectionné.');
+        }
+
+        // Supprimer tous les templates du groupe
+        SeanceTemplate::where('groupe_id', $groupe_id)->delete();
+
+        return redirect()->route('seance-templates.index', ['filiere_id' => $filiere_id, 'groupe_id' => $groupe_id])
+            ->with('success', 'L\'emploi du temps du groupe a été supprimé avec succès.');
     }
 }

@@ -7,6 +7,14 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-primary">Templates d'emploi du temps</h1>
         <div class="flex gap-2">
+            <form action="{{ route('seance-templates.delete-group') }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer tous les emplois du temps de ce groupe ?');" class="m-0">
+                @csrf @method('DELETE')
+                <input type="hidden" name="filiere_id" value="{{ $selectedFiliere }}">
+                <input type="hidden" name="groupe_id" value="{{ $selectedGroupe }}">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors {{ !$selectedGroupe ? 'opacity-50 cursor-not-allowed' : '' }}" {{ !$selectedGroupe ? 'disabled' : '' }}>
+                    <i class="fas fa-trash mr-2"></i>Supprimer le groupe
+                </button>
+            </form>
             <a href="{{ route('seance-templates.export.show') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                 <i class="fas fa-download mr-2"></i>Exporter
             </a>

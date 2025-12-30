@@ -31,7 +31,7 @@
                     <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         <option value="">-- Tous les groupes --</option>
                         @foreach ($groupes as $groupe)
-                            <option value="{{ $groupe->id }}">{{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})</option>
+                            <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}">{{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -56,4 +56,30 @@
         </p>
     </div>
 </div>
+
+<script>
+    document.getElementById('filiere_id').addEventListener('change', function() {
+        const selectedFiliereId = this.value;
+        const groupeSelect = document.getElementById('groupe_id');
+        const groupeOptions = groupeSelect.querySelectorAll('option[data-filiere-id]');
+
+        // Afficher/masquer les options de groupe selon la filière sélectionnée
+        groupeOptions.forEach(option => {
+            if (selectedFiliereId === '' || option.dataset.filiereId === selectedFiliereId) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+
+        // Réinitialiser la sélection du groupe
+        groupeSelect.value = '';
+    });
+
+    // Initialiser l'affichage des groupes au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        const event = new Event('change');
+        document.getElementById('filiere_id').dispatchEvent(event);
+    });
+</script>
 @endsection

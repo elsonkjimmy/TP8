@@ -77,6 +77,7 @@ Route::get('/timetables', [TimetableController::class, 'index'])->name('timetabl
 // Seance templates (admin only)
 use App\Http\Controllers\SeanceTemplateController;
 Route::middleware(['auth','verified','role:admin'])->group(function () {
+    Route::delete('seance-templates/delete-group', [SeanceTemplateController::class, 'deleteGroup'])->name('seance-templates.delete-group');
     Route::resource('seance-templates', SeanceTemplateController::class);
     Route::get('seance-templates/export/show', [SeanceTemplateController::class, 'showExport'])->name('seance-templates.export.show');
     Route::post('seance-templates/export/download', [SeanceTemplateController::class, 'export'])->name('seance-templates.export');
