@@ -51,6 +51,22 @@
                         @enderror
                     </div>
 
+                    <!-- Groupe -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe (Niveau)</label>
+                        <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror">
+                            <option value="">Sélectionner un groupe (optionnel)</option>
+                            @foreach ($groupes as $groupe)
+                                <option value="{{ $groupe->id }}" {{ old('groupe_id', $ue->groupe_id) == $groupe->id ? 'selected' : '' }}>
+                                    {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('groupe_id')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Enseignant -->
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="enseignant_id">Enseignant Responsable</label>

@@ -85,6 +85,17 @@
                     <i class="fas fa-users-class text-4xl text-teal-500 opacity-50"></i>
                 </div>
             </div>
+
+            <!-- Timetables Templates Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-indigo-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('seance-templates.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Emplois du Temps</p>
+                        <p class="text-sm text-indigo-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les templates</p>
+                    </div>
+                    <i class="fas fa-calendar-check text-4xl text-indigo-500 opacity-50"></i>
+                </a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

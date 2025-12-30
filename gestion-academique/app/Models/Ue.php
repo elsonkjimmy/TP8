@@ -18,6 +18,7 @@ class Ue extends Model
         'code',
         'nom',
         'filiere_id',
+        'groupe_id',
         'enseignant_id',
     ];
 
@@ -27,6 +28,14 @@ class Ue extends Model
     public function filiere()
     {
         return $this->belongsTo(Filiere::class);
+    }
+
+    /**
+     * Get the groupe that owns the Ue.
+     */
+    public function groupe()
+    {
+        return $this->belongsTo(Groupe::class);
     }
 
     /**

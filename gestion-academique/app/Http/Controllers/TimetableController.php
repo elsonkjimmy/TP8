@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Filiere;
 use App\Models\Groupe;
 use App\Models\Seance;
+use App\Models\SeanceTemplate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -30,21 +31,34 @@ class TimetableController extends Controller
         $monday = $today->copy()->startOfWeek(Carbon::MONDAY);
         $sunday = $today->copy()->endOfWeek(Carbon::SUNDAY);
 
-        // Récupérer les séances de la semaine
-        $query = Seance::with(['ue', 'salle', 'groupe', 'enseignant'])
+        // Récupérer les séances datées de la semaine
+        $querySeances = Seance::with(['ue', 'salle', 'groupe', 'enseignant'])
             ->whereBetween('jour', [$monday, $sunday]);
 
         if ($selectedFiliere) {
-            $query->whereHas('groupe', function ($q) use ($selectedFiliere) {
+            $querySeances->whereHas('groupe', function ($q) use ($selectedFiliere) {
                 $q->where('filiere_id', $selectedFiliere);
             });
         }
 
         if ($selectedGroupe) {
-            $query->where('groupe_id', $selectedGroupe);
+            $querySeances->where('groupe_id', $selectedGroupe);
         }
 
-        $seances = $query->get();
+        $seances = $querySeances->get();
+
+        // Récupérer les templates d'emploi du temps
+        $queryTemplates = SeanceTemplate::with(['ue', 'salle', 'groupe', 'filiere', 'enseignant']);
+
+        if ($selectedFiliere) {
+            $queryTemplates->where('filiere_id', $selectedFiliere);
+        }
+
+        if ($selectedGroupe) {
+            $queryTemplates->where('groupe_id', $selectedGroupe);
+        }
+
+        $templates = $queryTemplates->get();
 
         // Créer la grille horaire : jour x créneau
         $days = ['Monday' => 'Lundi', 'Tuesday' => 'Mardi', 'Wednesday' => 'Mercredi', 'Thursday' => 'Jeudi', 'Friday' => 'Vendredi', 'Saturday' => 'Samedi'];
@@ -54,7 +68,7 @@ class TimetableController extends Controller
             '15:00-18:00' => ['start' => '15:00', 'end' => '18:00'],
         ];
 
-        // Construire le tableau grille[jour][créneau] = séances
+        // Construire le tableau grille[jour][créneau] = séances (combinaison de Seance + SeanceTemplate)
         $timetableGrid = [];
         foreach ($days as $dayKey => $dayName) {
             $dayDate = $monday->copy()->modify($dayKey === 'Monday' ? 'monday' : ('next ' . strtolower($dayKey)));
@@ -62,17 +76,31 @@ class TimetableController extends Controller
                 $dayDate = $monday->copy()->addDays(array_search($dayKey, array_keys($days)));
             }
 
+            $dayOfWeek = $dayDate->dayOfWeek == 0 ? 7 : $dayDate->dayOfWeek; // 1=Lun, ..., 6=Sam (ISO)
+            
             $timetableGrid[$dayName] = [];
             foreach ($timeSlots as $slotKey => $slot) {
+                // Récupérer les séances datées pour ce créneau
                 $daySeances = $seances->filter(function ($seance) use ($dayDate, $slot) {
                     $seanceDate = Carbon::parse($seance->jour)->format('Y-m-d');
                     $targetDate = $dayDate->format('Y-m-d');
                     $seanceStart = Carbon::parse($seance->heure_debut)->format('H:i');
-                    $seanceEnd = Carbon::parse($seance->heure_fin)->format('H:i');
                     
                     return $seanceDate === $targetDate && $seanceStart >= $slot['start'] && $seanceStart < $slot['end'];
                 });
-                $timetableGrid[$dayName][$slotKey] = $daySeances;
+
+                // Récupérer les templates pour ce créneau (si pas de séances datées)
+                $dayTemplates = [];
+                if ($daySeances->isEmpty()) {
+                    $dayTemplates = $templates->filter(function ($template) use ($dayOfWeek, $slot) {
+                        return $template->day_of_week == $dayOfWeek && 
+                               $template->start_time >= $slot['start'] && 
+                               $template->start_time < $slot['end'];
+                    });
+                }
+
+                // Combiner séances datées + templates (priorité aux séances datées)
+                $timetableGrid[$dayName][$slotKey] = $daySeances->isNotEmpty() ? $daySeances : $dayTemplates;
             }
         }
 

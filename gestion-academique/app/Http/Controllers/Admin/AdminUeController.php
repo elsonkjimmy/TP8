@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Filiere;
+use App\Models\Groupe;
 use App\Models\Ue;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -26,8 +27,9 @@ class AdminUeController extends Controller
     public function create()
     {
         $filieres = Filiere::all();
+        $groupes = Groupe::all();
         $teachers = User::where('role', 'teacher')->get();
-        return view('admin.ues.create', compact('filieres', 'teachers'));
+        return view('admin.ues.create', compact('filieres', 'groupes', 'teachers'));
     }
 
     /**
@@ -39,6 +41,7 @@ class AdminUeController extends Controller
             'code' => ['required', 'string', 'max:255', 'unique:ues'],
             'nom' => ['required', 'string', 'max:255'],
             'filiere_id' => ['required', 'exists:filieres,id'],
+            'groupe_id' => ['nullable', 'exists:groupes,id'],
             'enseignant_id' => ['required', 'exists:users,id'],
         ]);
 
@@ -61,8 +64,9 @@ class AdminUeController extends Controller
     public function edit(Ue $ue)
     {
         $filieres = Filiere::all();
+        $groupes = Groupe::all();
         $teachers = User::where('role', 'teacher')->get();
-        return view('admin.ues.edit', compact('ue', 'filieres', 'teachers'));
+        return view('admin.ues.edit', compact('ue', 'filieres', 'groupes', 'teachers'));
     }
 
     /**
@@ -74,6 +78,7 @@ class AdminUeController extends Controller
             'code' => ['required', 'string', 'max:255', Rule::unique('ues')->ignore($ue->id)],
             'nom' => ['required', 'string', 'max:255'],
             'filiere_id' => ['required', 'exists:filieres,id'],
+            'groupe_id' => ['nullable', 'exists:groupes,id'],
             'enseignant_id' => ['required', 'exists:users,id'],
         ]);
 

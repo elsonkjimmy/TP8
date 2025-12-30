@@ -73,3 +73,13 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::get('/timetables', [TimetableController::class, 'index'])->name('timetables.index');
+
+// Seance templates (admin only)
+use App\Http\Controllers\SeanceTemplateController;
+Route::middleware(['auth','verified','role:admin'])->group(function () {
+    Route::resource('seance-templates', SeanceTemplateController::class);
+    Route::get('seance-templates/export/show', [SeanceTemplateController::class, 'showExport'])->name('seance-templates.export.show');
+    Route::post('seance-templates/export/download', [SeanceTemplateController::class, 'export'])->name('seance-templates.export');
+    Route::get('seance-templates/import/show', [SeanceTemplateController::class, 'showImport'])->name('seance-templates.import');
+    Route::post('seance-templates/import/store', [SeanceTemplateController::class, 'import'])->name('seance-templates.import.store');
+});
