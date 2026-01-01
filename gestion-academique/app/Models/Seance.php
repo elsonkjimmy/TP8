@@ -75,4 +75,45 @@ class Seance extends Model
     {
         return $this->hasOne(RapportSeance::class, 'seance_id');
     }
+
+    /**
+     * Get the delegates assigned to this Seance.
+     */
+    public function delegates()
+    {
+        return $this->belongsToMany(User::class, 'seance_delegates', 'seance_id', 'user_id')->withTimestamps();
+    }
+
+    /**
+     * Try to find delegates defined on a matching SeanceTemplate (fallback).
+     */
+    public function templateDelegates()
+    {
+        try {
+            $dow = \Carbon\Carbon::parse($this->jour)->dayOfWeekIso; // 1 (Mon) .. 7 (Sun)
+            $time = \Carbon\Carbon::parse($this->heure_debut)->format('H:i');
+
+            $template = \App\Models\SeanceTemplate::where('groupe_id', $this->groupe_id)
+                ->where('enseignant_id', $this->enseignant_id)
+                ->where('start_time', $time)
+                ->first();
+
+            if ($template) {
+                return $template->delegates;
+            }
+        } catch (\Throwable $e) {
+            return collect();
+        }
+
+        return collect();
+    }
+
+    public function effectiveDelegates()
+    {
+        $delegates = $this->delegates()->get();
+        if ($delegates->isNotEmpty()) {
+            return $delegates;
+        }
+        return $this->templateDelegates();
+    }
 }

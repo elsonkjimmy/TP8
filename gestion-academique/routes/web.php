@@ -12,7 +12,8 @@ use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminDashboardController; // Add this line
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TeacherController;
-use App\Http\Controllers\TeacherRapportSeanceController;
+use App\Http\Controllers\Teacher\SeanceController as TeacherSeanceController;
+use App\Http\Controllers\Teacher\SeanceReportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,6 +36,9 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard'); // Update this line
 
+    Route::get('reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/{report}', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'show'])->name('reports.show');
+
     Route::get('users/import', [AdminUserController::class, 'showImportForm'])->name('users.import.form');
     Route::post('users/import', [AdminUserController::class, 'importUsers'])->name('users.import');
     Route::resource('users', AdminUserController::class);
@@ -50,17 +54,28 @@ Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('a
 
 Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefix('teacher')->group(function () {
     Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('dashboard');
-    Route::patch('/seances/{seance}/status', [TeacherController::class, 'updateStatus'])->name('seances.updateStatus');
+    Route::patch('/seances/{seance}/status', [TeacherSeanceController::class, 'updateStatus'])->name('seances.updateStatus');
+    Route::post('/seances/{seance}/assign-delegate', [TeacherSeanceController::class, 'assignDelegate'])->name('seances.assignDelegate');
 
-    Route::get('/seances/{seance}/reports/create', [TeacherRapportSeanceController::class, 'create'])->name('seances.reports.create');
-    Route::post('/seances/{seance}/reports', [TeacherRapportSeanceController::class, 'store'])->name('seances.reports.store');
-    Route::get('/reports/{rapportSeance}', [TeacherRapportSeanceController::class, 'show'])->name('reports.show');
+    Route::get('/seances/{seance}/reports/create', [SeanceReportController::class, 'create'])->name('seances.reports.create');
+    Route::post('/seances/{seance}/reports', [SeanceReportController::class, 'store'])->name('seances.reports.store');
+    Route::get('/reports/{report}', [SeanceReportController::class, 'show'])->name('reports.show');
+    Route::patch('/reports/{report}/validate', [SeanceReportController::class, 'validateReport'])->name('reports.validate');
+
+    // Template delegates management for teachers
+    Route::post('/seance-templates/{seanceTemplate}/delegates', [\App\Http\Controllers\Teacher\TemplateDelegateController::class, 'store'])->name('seance-templates.delegates.store');
+    Route::delete('/seance-templates/{seanceTemplate}/delegates/{user}', [\App\Http\Controllers\Teacher\TemplateDelegateController::class, 'destroy'])->name('seance-templates.delegates.destroy');
 });
 
+use App\Http\Controllers\Delegate\DelegateController;
+
 Route::middleware(['auth', 'verified', 'role:delegate'])->name('delegate.')->prefix('delegate')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('delegate.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DelegateController::class, 'dashboard'])->name('dashboard');
+
+    // Allow delegates to create and store reports for seances they are assigned to
+    Route::get('/seances/{seance}/reports/create', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'create'])->name('seances.reports.create');
+    Route::post('/seances/{seance}/reports', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'store'])->name('seances.reports.store');
+    Route::get('/reports/{report}', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'show'])->name('reports.show');
 });
 
 

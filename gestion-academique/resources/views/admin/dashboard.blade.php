@@ -96,6 +96,17 @@
                     <i class="fas fa-calendar-check text-4xl text-indigo-500 opacity-50"></i>
                 </a>
             </div>
+
+            <!-- Reports Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('admin.reports.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Rapports de Séance</p>
+                        <p class="text-sm text-green-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Consulter les rapports</p>
+                    </div>
+                    <i class="fas fa-file-alt text-4xl text-green-500 opacity-50"></i>
+                </a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -17,8 +17,12 @@ class RapportSeance extends Model
     protected $fillable = [
         'seance_id',
         'enseignant_id',
-        'délégué_id',
+        'filled_by_id',
+        'validated_by_id',
+        'delegue_id',
         'contenu',
+        'status',
+        // legacy column for older schema
         'statut',
     ];
 
@@ -35,7 +39,7 @@ class RapportSeance extends Model
      */
     public function enseignant()
     {
-        return $this->belongsTo(User::class, 'enseignant_id');
+        return $this->belongsTo(User::class, 'filled_by_id');
     }
 
     /**
@@ -43,6 +47,10 @@ class RapportSeance extends Model
      */
     public function delegue()
     {
-        return $this->belongsTo(User::class, 'délégué_id');
+        // legacy column `delegue_id` points to delegate who created the report in older schema
+        if ($this->delegue_id) {
+            return $this->belongsTo(User::class, 'delegue_id');
+        }
+        return $this->belongsTo(User::class, 'validated_by_id');
     }
 }

@@ -42,10 +42,10 @@
                 <p class="text-gray-700 text-sm font-bold mb-2">Statut du Rapport :</p>
                 <span class="relative inline-block px-3 py-1 font-semibold leading-tight">
                     <span aria-hidden="true" class="absolute inset-0 opacity-50 rounded-full 
-                        @if($rapportSeance->statut == 'approved') bg-green-200 text-green-800
-                        @elseif($rapportSeance->statut == 'rejected') bg-red-200 text-red-800
+                        @if($rapportSeance->status == 'validated') bg-green-200 text-green-800
+                        @elseif($rapportSeance->status == 'rejected') bg-red-200 text-red-800
                         @else bg-yellow-200 text-yellow-800 @endif"></span>
-                    <span class="relative">{{ ucfirst($rapportSeance->statut) }}</span>
+                    <span class="relative">{{ ucfirst($rapportSeance->status) }}</span>
                 </span>
             </div>
             @if($rapportSeance->delegue)

@@ -45,4 +45,9 @@ class SeanceTemplate extends Model
     {
         return $this->belongsTo(User::class, 'enseignant_id');
     }
+
+    public function delegates()
+    {
+        return $this->belongsToMany(User::class, 'seance_template_delegates', 'seance_template_id', 'user_id')->withTimestamps();
+    }
 }
