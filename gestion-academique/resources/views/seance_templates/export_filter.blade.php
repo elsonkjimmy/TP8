@@ -17,9 +17,9 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="filiere_id">Filière (optionnel)</label>
-                    <select id="filiere_id" name="filiere_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">-- Toutes les filières --</option>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="filiere_id">Filière <span class="text-red-500">*</span></label>
+                    <select id="filiere_id" name="filiere_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <option value="">-- Sélectionner une filière --</option>
                         @foreach ($filieres as $filiere)
                             <option value="{{ $filiere->id }}">{{ $filiere->nom }}</option>
                         @endforeach
@@ -27,14 +27,23 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe / Niveau (optionnel)</label>
-                    <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe / Niveau <span class="text-red-500">*</span></label>
+                    <select id="groupe_id" name="groupe_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         <option value="">-- Tous les groupes --</option>
                         @foreach ($groupes as $groupe)
                             <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}">{{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})</option>
                         @endforeach
                     </select>
                 </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="semester">Semestre <span class="text-red-500">*</span></label>
+                <select id="semester" name="semester" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="">-- Sélectionner un semestre --</option>
+                    <option value="S1">Semestre 1 (S1)</option>
+                    <option value="S2">Semestre 2 (S2)</option>
+                </select>
             </div>
 
             <div class="flex gap-4">

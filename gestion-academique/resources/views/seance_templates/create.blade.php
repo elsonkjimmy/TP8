@@ -66,6 +66,14 @@
             </select>
         </div>
         <div>
+            <label>Semestre (optionnel)</label>
+            <select name="semester" class="w-full border p-2">
+                <option value="">-- Aucun --</option>
+                <option value="S1">Semestre 1 (S1)</option>
+                <option value="S2">Semestre 2 (S2)</option>
+            </select>
+        </div>
+        <div>
             <label>Heure début</label>
             <input type="time" name="start_time" required class="w-full border p-2">
         </div>

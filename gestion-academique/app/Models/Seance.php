@@ -22,7 +22,8 @@ class Seance extends Model
         'salle_id',
         'groupe_id',
         'enseignant_id',
-        'status', // Add status to fillable
+        'status',
+        'semester',
     ];
 
     /**

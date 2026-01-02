@@ -67,6 +67,14 @@
             </select>
         </div>
         <div>
+            <label>Semestre (optionnel)</label>
+            <select name="semester" class="w-full border p-2">
+                <option value="" {{ $seanceTemplate->semester ? '' : 'selected' }}>-- Aucun --</option>
+                <option value="S1" {{ $seanceTemplate->semester == 'S1' ? 'selected' : '' }}>Semestre 1 (S1)</option>
+                <option value="S2" {{ $seanceTemplate->semester == 'S2' ? 'selected' : '' }}>Semestre 2 (S2)</option>
+            </select>
+        </div>
+        <div>
             <label>Heure début</label>
             <input type="time" name="start_time" value="{{ $seanceTemplate->start_time }}" required class="w-full border p-2">
         </div>

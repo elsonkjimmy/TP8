@@ -104,6 +104,7 @@ class SeanceTemplateController extends Controller
             'salle_id' => 'nullable|exists:salles,id',
             'enseignant_id' => 'nullable|exists:users,id',
             'day_of_week' => 'required|integer|min:1|max:6',
+            'semester' => 'nullable|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'comment' => 'nullable|string',
@@ -143,6 +144,7 @@ class SeanceTemplateController extends Controller
             'salle_id' => 'nullable|exists:salles,id',
             'enseignant_id' => 'nullable|exists:users,id',
             'day_of_week' => 'required|integer|min:1|max:6',
+            'semester' => 'nullable|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'comment' => 'nullable|string',
@@ -212,19 +214,21 @@ class SeanceTemplateController extends Controller
     }
 
     /**
-     * Exporte les templates en CSV filtrés par filière/groupe
+     * Exporte les templates en CSV filtrés par filière/groupe/semestre
      */
     public function export(Request $request)
     {
+        $request->validate([
+            'filiere_id' => 'required|exists:filieres,id',
+            'groupe_id' => 'required|exists:groupes,id',
+            'semester' => 'required|string',
+        ]);
+
         $query = SeanceTemplate::with(['filiere','groupe','ue','salle','enseignant']);
 
-        if ($request->get('filiere_id')) {
-            $query->where('filiere_id', $request->get('filiere_id'));
-        }
-
-        if ($request->get('groupe_id')) {
-            $query->where('groupe_id', $request->get('groupe_id'));
-        }
+        $query->where('filiere_id', $request->get('filiere_id'))
+              ->where('groupe_id', $request->get('groupe_id'))
+              ->where('semester', $request->get('semester'));
 
         $templates = $query->orderBy('day_of_week')->orderBy('start_time')->get();
 
@@ -235,6 +239,7 @@ class SeanceTemplateController extends Controller
             'Jour',
             'Heure Début',
             'Heure Fin',
+            'Semestre',
             'UE Code',
             'UE Nom',
             'Filière',
@@ -251,6 +256,7 @@ class SeanceTemplateController extends Controller
                 $dayNames[$t->day_of_week],
                 $t->start_time,
                 $t->end_time,
+                $t->semester ?? '',
                 $t->ue->code,
                 $t->ue->nom,
                 $t->filiere->nom ?? '',
@@ -281,7 +287,7 @@ class SeanceTemplateController extends Controller
     }
 
     /**
-     * Importe les templates depuis un CSV avec filtres optionnels
+     * Importe les templates depuis un CSV avec filtres obligatoires
      */
     public function import(Request $request)
     {
@@ -289,11 +295,13 @@ class SeanceTemplateController extends Controller
             'file' => 'required|file|mimes:csv,txt|max:5120',
             'filiere_id' => 'required|exists:filieres,id',
             'groupe_id' => 'required|exists:groupes,id',
+            'semester' => 'required|string',
         ]);
 
         $file = $request->file('file');
         $defaultFiliereId = $request->get('filiere_id');
         $defaultGroupeId = $request->get('groupe_id');
+        $defaultSemester = $request->get('semester');
 
         try {
             // Utiliser le chemin réel du fichier uploadé
@@ -314,6 +322,21 @@ class SeanceTemplateController extends Controller
                         continue;
                     }
 
+                    // Valider les heures
+                    $startTime = trim($record['Heure Début'] ?? '');
+                    $endTime = trim($record['Heure Fin'] ?? '');
+                    if (!$startTime || !$endTime) {
+                        $errors[] = "Ligne " . ($index + 2) . ": heure début et fin obligatoires";
+                        $skipped++;
+                        continue;
+                    }
+                    
+                    if (strtotime($startTime) >= strtotime($endTime)) {
+                        $errors[] = "Ligne " . ($index + 2) . ": l'heure début doit être avant l'heure fin";
+                        $skipped++;
+                        continue;
+                    }
+
                     // Récupérer les IDs
                     $ue = Ue::where('code', $record['UE Code'])->first();
                     if (!$ue) {
@@ -326,6 +349,34 @@ class SeanceTemplateController extends Controller
                     $filiereId = $defaultFiliereId ?: ($record['Filière'] ? Filiere::where('nom', $record['Filière'])->first()?->id : null);
                     $groupeId = $defaultGroupeId ?: ($record['Groupe'] ? Groupe::where('nom', $record['Groupe'])->first()?->id : null);
                     
+                    // Vérifier que filière et groupe existent si fournis
+                    if (!$filiereId) {
+                        $errors[] = "Ligne " . ($index + 2) . ": filière non trouvée";
+                        $skipped++;
+                        continue;
+                    }
+                    if (!$groupeId) {
+                        $errors[] = "Ligne " . ($index + 2) . ": groupe non trouvé";
+                        $skipped++;
+                        continue;
+                    }
+
+                    // Vérifier que le groupe appartient à la filière
+                    $groupe = Groupe::find($groupeId);
+                    if ($groupe && $groupe->filiere_id != $filiereId) {
+                        $errors[] = "Ligne " . ($index + 2) . ": le groupe n'appartient pas à la filière sélectionnée";
+                        $skipped++;
+                        continue;
+                    }
+
+                    $semester = trim($record['Semestre'] ?? '') ?: $defaultSemester;
+                    // Vérifier que le semestre est valide
+                    if (!in_array($semester, ['S1', 'S2'])) {
+                        $errors[] = "Ligne " . ($index + 2) . ": semestre invalide (doit être S1 ou S2)";
+                        $skipped++;
+                        continue;
+                    }
+                    
                     $salle = $record['Salle'] ? Salle::where('numero', $record['Salle'])->first() : null;
                     
                     $enseignant = null;
@@ -334,6 +385,26 @@ class SeanceTemplateController extends Controller
                         $enseignant = User::where('first_name', $names[0] ?? '')
                             ->where('last_name', $names[1] ?? '')
                             ->first();
+                        if (!$enseignant) {
+                            $errors[] = "Ligne " . ($index + 2) . ": enseignant '{$record['Enseignant']}' non trouvé";
+                            $skipped++;
+                            continue;
+                        }
+                    }
+
+                    // Vérifier les chevauchements avec d'autres templates du même groupe
+                    $conflicts = SeanceTemplate::where('groupe_id', $groupeId)
+                        ->where('day_of_week', $dayOfWeek)
+                        ->get()
+                        ->filter(function ($template) use ($startTime, $endTime) {
+                            return $startTime < $template->end_time && $endTime > $template->start_time;
+                        });
+
+                    if ($conflicts->count() > 0) {
+                        $conflictTimes = $conflicts->map(fn($t) => "{$t->start_time}-{$t->end_time}")->join(', ');
+                        $errors[] = "Ligne " . ($index + 2) . ": chevauchement détecté avec les créneaux existants: {$conflictTimes}";
+                        $skipped++;
+                        continue;
                     }
 
                     // Créer ou mettre à jour
@@ -343,13 +414,15 @@ class SeanceTemplateController extends Controller
                             'groupe_id' => $groupeId,
                             'ue_id' => $ue->id,
                             'day_of_week' => $dayOfWeek,
-                            'start_time' => $record['Heure Début'],
+                            'start_time' => $startTime,
+                            'semester' => $semester,
                         ],
                         [
-                            'end_time' => $record['Heure Fin'],
+                            'end_time' => $endTime,
                             'salle_id' => $salle?->id,
                             'enseignant_id' => $enseignant?->id,
                             'comment' => $record['Commentaire'] ?? null,
+                            'semester' => $semester,
                         ]
                     );
 

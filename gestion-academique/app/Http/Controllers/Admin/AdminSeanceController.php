@@ -21,8 +21,27 @@ class AdminSeanceController extends Controller
      */
     public function index()
     {
-        $seances = Seance::with(['ue', 'salle', 'groupe', 'enseignant'])->get();
-        return view('admin.seances.index', compact('seances'));
+        $query = Seance::with(['ue', 'salle', 'groupe', 'enseignant']);
+
+        // Apply filters
+        if (request('filiere_id')) {
+            $query->whereHas('groupe', function ($q) {
+                $q->where('filiere_id', request('filiere_id'));
+            });
+        }
+        if (request('groupe_id')) {
+            $query->where('groupe_id', request('groupe_id'));
+        }
+        if (request('semester')) {
+            $query->where('semester', request('semester'));
+        }
+
+        $seances = $query->get();
+        $filieres = \App\Models\Filiere::all();
+        $groupes = \App\Models\Groupe::all();
+        $semesters = ['S1', 'S2'];
+
+        return view('admin.seances.index', compact('seances', 'filieres', 'groupes', 'semesters'));
     }
 
     /**
@@ -50,6 +69,7 @@ class AdminSeanceController extends Controller
             'salle_id' => ['required', 'exists:salles,id'],
             'groupe_id' => ['required', 'exists:groupes,id'],
             'enseignant_id' => ['required', 'exists:users,id'],
+            'semester' => ['nullable', 'in:S1,S2'],
         ]);
 
         $conflicts = $this->checkConflicts($validatedData);
@@ -58,11 +78,22 @@ class AdminSeanceController extends Controller
             return redirect()->back()->withErrors($conflicts)->withInput();
         }
 
-        $seance = Seance::create($validatedData);
+        try {
+            $seance = Seance::create($validatedData);
 
-        $this->sendSeanceNotification($seance, 'created');
+            $this->sendSeanceNotification($seance, 'created');
 
-        return redirect()->route('admin.seances.index')->with('success', 'Séance créée avec succès.');
+            return redirect()->route('admin.seances.index')->with('success', 'Séance créée avec succès.');
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la création de séance', [
+                'validated_data' => $validatedData,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->back()
+                ->withErrors(['error' => 'Erreur lors de la création : ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
     /**
@@ -98,6 +129,7 @@ class AdminSeanceController extends Controller
             'salle_id' => ['required', 'exists:salles,id'],
             'groupe_id' => ['required', 'exists:groupes,id'],
             'enseignant_id' => ['required', 'exists:users,id'],
+            'semester' => ['nullable', 'in:S1,S2'],
         ]);
 
         $conflicts = $this->checkConflicts($validatedData, $seance);

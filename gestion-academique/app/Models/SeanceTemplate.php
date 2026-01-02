@@ -15,6 +15,7 @@ class SeanceTemplate extends Model
         'ue_id',
         'salle_id',
         'enseignant_id',
+        'semester',
         'day_of_week',
         'start_time',
         'end_time',

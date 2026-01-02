@@ -9,7 +9,8 @@ use App\Http\Controllers\Admin\AdminSalleController;
 use App\Http\Controllers\Admin\AdminGroupeController;
 use App\Http\Controllers\Admin\AdminSeanceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
-use App\Http\Controllers\Admin\AdminDashboardController; // Add this line
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\SeanceGeneratorController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\Teacher\SeanceController as TeacherSeanceController;
@@ -46,6 +47,13 @@ Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('a
     Route::resource('ues', AdminUeController::class);
     Route::resource('salles', AdminSalleController::class);
     Route::resource('groupes', AdminGroupeController::class);
+
+    // Advanced seance generation routes (MUST be before resource to avoid 404)
+    Route::get('seances/generate/form', [SeanceGeneratorController::class, 'showForm'])->name('seances.generate.form');
+    Route::get('seances/get-templates-by-filtre', [SeanceGeneratorController::class, 'getTemplatesByFiltre'])->name('seances.get-templates-by-filtre');
+    Route::post('seances/generate-from-template', [SeanceGeneratorController::class, 'generateFromTemplate'])->name('seances.generate-from-template');
+    Route::post('seances/generate-from-import', [SeanceGeneratorController::class, 'generateFromImport'])->name('seances.generate-from-import');
+    
     Route::resource('seances', AdminSeanceController::class);
     Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
     Route::get('notifications/create', [AdminNotificationController::class, 'create'])->name('notifications.create');

@@ -17,7 +17,7 @@
         <h2 class="text-lg font-bold mb-4">Format du fichier CSV</h2>
         <p class="mb-4 text-gray-700">Le fichier doit contenir les colonnes suivantes (dans cet ordre exact):</p>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
-            Jour, Heure Début, Heure Fin, UE Code, UE Nom, Filière, Groupe, Salle, Enseignant, Commentaire
+            Jour, Heure Début, Heure Fin, Semestre, UE Code, UE Nom, Filière, Groupe, Salle, Enseignant, Commentaire
         </div>
         <p class="mt-4 text-gray-700"><strong>Exemple:</strong></p>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
@@ -65,6 +65,19 @@
                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="semester">Semestre <span class="text-red-500">*</span></label>
+                <select id="semester" name="semester" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('semester') border-red-500 @enderror">
+                    <option value="">-- Sélectionner un semestre --</option>
+                    <option value="S1" {{ old('semester') == 'S1' ? 'selected' : '' }}>Semestre 1 (S1)</option>
+                    <option value="S2" {{ old('semester') == 'S2' ? 'selected' : '' }}>Semestre 2 (S2)</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Le semestre est obligatoire</p>
+                @error('semester')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="mb-6">
