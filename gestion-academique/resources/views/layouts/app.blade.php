@@ -183,7 +183,7 @@
     </header>
 
     <!-- Mobile Menu -->
-    <div class="mobile-menu fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 md:hidden">
+    <div class="mobile-menu fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 md:hidden overflow-y-auto" style="max-height:100vh;">
         <div class="p-6">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-xl font-bold text-primary">Menu</h2>
