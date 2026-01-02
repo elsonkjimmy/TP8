@@ -73,9 +73,7 @@
             <div class="flex justify-between items-center py-4">
                 <!-- Logo et titre -->
                 <div class="flex items-center space-x-3">
-                    <div class="bg-white p-2 rounded-lg">
-                        <i class="fas fa-university text-primary text-2xl"></i>
-                    </div>
+                    <img src="{{ asset('images/Blason_uy1.png') }}" alt="UY1 Logo" class="h-14 w-auto rounded-[5px] object-contain">
                     <div>
                         <h1 class="text-xl font-bold">Département d'Informatique</h1>
                         <p class="text-sm text-gray-200">Université de Yaoundé I</p>
