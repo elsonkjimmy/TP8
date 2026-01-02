@@ -6,92 +6,180 @@
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-primary mb-6">Tableau de bord Administrateur</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Users Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-primary">
+        <!-- Statistics Table (Collapsible) -->
+        <div class="bg-white rounded-xl shadow-lg mb-8" x-data="{ open: false }">
+            <div class="p-6 cursor-pointer hover:bg-gray-50 transition" @click="open = !open">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Total Utilisateurs</p>
-                        <p class="text-3xl font-bold text-primary">{{ $totalUsers }}</p>
-                    </div>
-                    <i class="fas fa-users text-4xl text-primary opacity-50"></i>
+                    <h2 class="text-xl font-bold text-primary">Résumé des Statistiques</h2>
+                    <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': open }"></i>
                 </div>
             </div>
 
-            <!-- Total Teachers Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-accent">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Enseignants</p>
-                        <p class="text-3xl font-bold text-accent">{{ $totalTeachers }}</p>
-                    </div>
-                    <i class="fas fa-chalkboard-teacher text-4xl text-accent opacity-50"></i>
-                </div>
-            </div>
+            <div x-show="open" @click.outside="open = false" class="border-t border-gray-200 p-6 overflow-auto">
+                <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b-2 border-gray-200">
+                        <th class="text-left py-3 px-4 font-semibold text-gray-700">Catégorie</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-700">Nombre</th>
+                        <th class="text-center py-3 px-4 font-semibold text-gray-700">Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Users Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-users text-primary mr-2"></i>Utilisateurs
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-primary text-lg">{{ $totalUsers }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Actifs</span>
+                        </td>
+                    </tr>
 
-            <!-- Total Delegates Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-success">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Délégués</p>
-                        <p class="text-3xl font-bold text-success">{{ $totalDelegates }}</p>
-                    </div>
-                    <i class="fas fa-user-tie text-4xl text-success opacity-50"></i>
-                </div>
-            </div>
+                    <!-- Teachers Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-chalkboard-teacher text-accent mr-2"></i>Enseignants
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-accent text-lg">{{ $totalTeachers }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Enseignement</span>
+                        </td>
+                    </tr>
 
-            <!-- Total Filieres Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-purple-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Filières</p>
-                        <p class="text-3xl font-bold text-purple-500">{{ $totalFilieres }}</p>
-                    </div>
-                    <i class="fas fa-graduation-cap text-4xl text-purple-500 opacity-50"></i>
-                </div>
+                    <!-- Delegates Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-user-tie text-success mr-2"></i>Délégués
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-success text-lg">{{ $totalDelegates }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Actifs</span>
+                        </td>
+                    </tr>
+
+                    <!-- Filieres Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-graduation-cap text-purple-500 mr-2"></i>Filières
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-purple-500 text-lg">{{ $totalFilieres }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Programmes</span>
+                        </td>
+                    </tr>
+
+                    <!-- UEs Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-book text-blue-500 mr-2"></i>Unités d'Enseignement
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-blue-500 text-lg">{{ $totalUes }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Total</span>
+                        </td>
+                    </tr>
+
+                    <!-- Salles Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-building text-orange-500 mr-2"></i>Salles
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-orange-500 text-lg">{{ $totalSalles }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Disponibles</span>
+                        </td>
+                    </tr>
+
+                    <!-- Groupes Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-users-class text-teal-500 mr-2"></i>Groupes
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-teal-500 text-lg">{{ $totalGroupes }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Actifs</span>
+                        </td>
+                    </tr>
+
+                    <!-- Sessions Summary -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 bg-gray-50 font-semibold">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-calendar-alt text-gray-600 mr-2"></i>Total Séances
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-gray-700 text-lg">{{ $totalSeances }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="text-sm text-gray-500">Sessions</span>
+                        </td>
+                    </tr>
+
+                    <!-- Completed Sessions Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>Séances Effectuées
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-green-500 text-lg">{{ $completedSeances }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">Complétées</span>
+                        </td>
+                    </tr>
+
+                    <!-- Pending Sessions Row -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-hourglass-half text-yellow-500 mr-2"></i>Séances Planifiées
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-yellow-500 text-lg">{{ $pendingSeances }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold">En attente</span>
+                        </td>
+                    </tr>
+
+                    <!-- Cancelled Sessions Row -->
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 text-gray-800">
+                            <i class="fas fa-times-circle text-red-500 mr-2"></i>Séances Annulées
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="font-bold text-red-500 text-lg">{{ $cancelledSeances }}</span>
+                        </td>
+                        <td class="text-center py-3 px-4">
+                            <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-semibold">Annulées</span>
+                        </td>
+                    </tr>
+                </tbody>
+                </table>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Total UEs Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Unités d'Enseignement</p>
-                        <p class="text-3xl font-bold text-blue-500">{{ $totalUes }}</p>
-                    </div>
-                    <i class="fas fa-book text-4xl text-blue-500 opacity-50"></i>
-                </div>
-            </div>
-
-            <!-- Total Salles Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Salles</p>
-                        <p class="text-3xl font-bold text-orange-500">{{ $totalSalles }}</p>
-                    </div>
-                    <i class="fas fa-building text-4xl text-orange-500 opacity-50"></i>
-                </div>
-            </div>
-
-            <!-- Total Groupes Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-teal-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Groupes</p>
-                        <p class="text-3xl font-bold text-teal-500">{{ $totalGroupes }}</p>
-                    </div>
-                    <i class="fas fa-users-class text-4xl text-teal-500 opacity-50"></i>
-                </div>
-            </div>
-
-            <!-- Timetables Templates Card -->
+        <!-- Action Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Timetables Card -->
             <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-indigo-500 hover:shadow-xl transition-shadow cursor-pointer">
                 <a href="{{ route('seance-templates.index') }}" class="flex items-center justify-between h-full">
                     <div>
                         <p class="text-lg font-medium text-gray-600">Emplois du Temps</p>
-                        <p class="text-sm text-indigo-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les templates</p>
+                        <p class="text-sm text-indigo-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les Emplois du Temps</p>
                     </div>
                     <i class="fas fa-calendar-check text-4xl text-indigo-500 opacity-50"></i>
                 </a>
@@ -109,82 +197,13 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Sessions Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-gray-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Total Séances</p>
-                        <p class="text-3xl font-bold text-gray-500">{{ $totalSeances }}</p>
-                    </div>
-                    <i class="fas fa-calendar-alt text-4xl text-gray-500 opacity-50"></i>
-                </div>
+        <!-- Overall UE Progress Card -->
+        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-700 mt-6">
+            <h2 class="text-xl font-bold text-primary mb-4">Avancement Global des UE</h2>
+            <div class="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+                <div class="bg-blue-700 h-4 rounded-full" style="width: {{ $overallUeProgress }}%"></div>
             </div>
-
-            <!-- Completed Sessions Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Séances Effectuées</p>
-                        <p class="text-3xl font-bold text-green-500">{{ $completedSeances }}</p>
-                    </div>
-                    <i class="fas fa-check-circle text-4xl text-green-500 opacity-50"></i>
-                </div>
-            </div>
-
-            <!-- Pending Sessions Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-yellow-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Séances Planifiées</p>
-                        <p class="text-3xl font-bold text-yellow-500">{{ $pendingSeances }}</p>
-                    </div>
-                    <i class="fas fa-hourglass-half text-4xl text-yellow-500 opacity-50"></i>
-                </div>
-            </div>
-
-            <!-- Cancelled Sessions Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-red-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Séances Annulées</p>
-                        <p class="text-3xl font-bold text-red-500">{{ $cancelledSeances }}</p>
-                    </div>
-                    <i class="fas fa-times-circle text-4xl text-red-500 opacity-50"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Overall UE Progress Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-700">
-                <h2 class="text-xl font-bold text-primary mb-4">Avancement Global des UE</h2>
-                <div class="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
-                    <div class="bg-blue-700 h-4 rounded-full" style="width: {{ $overallUeProgress }}%"></div>
-                </div>
-                <p class="text-lg font-bold text-blue-700 mt-2">{{ $overallUeProgress }}%</p>
-            </div>
-
-            <!-- Recent Notifications Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-gray-700">
-                <h2 class="text-xl font-bold text-primary mb-4">Notifications Récentes</h2>
-                <ul class="space-y-3">
-                    @forelse ($recentNotifications as $notification)
-                        <li class="flex items-start space-x-3">
-                            <i class="fas fa-bell text-gray-500 mt-1"></i>
-                            <div>
-                                <p class="text-gray-800">{{ Str::limit($notification->contenu, 100) }}</p>
-                                <p class="text-sm text-gray-500">
-                                    De {{ $notification->expediteur->first_name ?? 'N/A' }} à {{ $notification->destinataireUser->first_name ?? 'N/A' }}
-                                    - {{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}
-                                </p>
-                            </div>
-                        </li>
-                    @empty
-                        <li><p class="text-gray-500">Aucune notification récente.</p></li>
-                    @endforelse
-                </ul>
-            </div>
+            <p class="text-lg font-bold text-blue-700 mt-2">{{ $overallUeProgress }}%</p>
         </div>
     </div>
 @endsection

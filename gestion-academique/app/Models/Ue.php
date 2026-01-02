@@ -55,6 +55,14 @@ class Ue extends Model
     }
 
     /**
+     * Get chapters for the UE.
+     */
+    public function chapters()
+    {
+        return $this->hasMany(Chapter::class)->orderBy('position')->orderBy('id');
+    }
+
+    /**
      * Calculate the progress of the UE.
      *
      * @return float

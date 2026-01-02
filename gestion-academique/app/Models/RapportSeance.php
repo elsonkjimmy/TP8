@@ -16,6 +16,7 @@ class RapportSeance extends Model
      */
     protected $fillable = [
         'seance_id',
+        'chapter_id',
         'enseignant_id',
         'filled_by_id',
         'validated_by_id',
@@ -32,6 +33,14 @@ class RapportSeance extends Model
     public function seance()
     {
         return $this->belongsTo(Seance::class);
+    }
+
+    /**
+     * Get the chapter associated with this report.
+     */
+    public function chapter()
+    {
+        return $this->belongsTo(Chapter::class, 'chapter_id');
     }
 
     /**

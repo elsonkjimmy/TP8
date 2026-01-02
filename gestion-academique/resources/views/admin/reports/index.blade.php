@@ -43,7 +43,18 @@
                     <tr class="border-t">
                         <td class="px-4 py-2">{{ $r->seance->ue->nom ?? 'N/A' }}</td>
                         <td class="px-4 py-2">{{ \Carbon\Carbon::parse($r->seance->jour)->format('d/m/Y') }}</td>
-                        <td class="px-4 py-2">{{ $r->enseignant->name ?? $r->seance->enseignant->name ?? 'N/A' }}</td>
+                        @php
+                            $reportAuthor = $r->enseignant;
+                            $seanceTeacher = $r->seance->enseignant ?? null;
+                            if ($reportAuthor) {
+                                $teacherLabel = trim(($reportAuthor->first_name ?? '') . ' ' . ($reportAuthor->last_name ?? '')) ?: 'N/A';
+                            } elseif ($seanceTeacher) {
+                                $teacherLabel = trim(($seanceTeacher->first_name ?? '') . ' ' . ($seanceTeacher->last_name ?? '')) ?: 'N/A';
+                            } else {
+                                $teacherLabel = 'N/A';
+                            }
+                        @endphp
+                        <td class="px-4 py-2">{{ $teacherLabel }}</td>
                         <td class="px-4 py-2">{{ $r->seance->groupe->filiere->nom ?? '' }} / {{ $r->seance->groupe->nom ?? '' }}</td>
                         <td class="px-4 py-2">{{ ucfirst($r->status) }}</td>
                         <td class="px-4 py-2">

@@ -89,7 +89,54 @@
                         <i class="fas fa-save mr-2"></i>Mettre à jour l'UE
                     </button>
                 </div>
+                <!-- Server-rendered chapters container (fallback if JS insertion fails) -->
+                <div id="chapters_container" class="bg-white rounded-xl shadow-lg p-6 mt-6">
+                    <h3 class="text-lg font-bold mb-3">Chapitres de l'UE</h3>
+                    <div id="chapters_list" class="space-y-2"></div>
+                    <div class="mt-3">
+                        <button type="button" id="add_chapter" class="bg-green-600 text-white px-3 py-2 rounded">Ajouter un chapitre</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        (function(){
+            const container = document.getElementById('chapters_container');
+            const list = container.querySelector('#chapters_list');
+
+            function bindRemove(btn) {
+                btn.addEventListener('click', function(){
+                    const row = this.closest('div.flex');
+                    if (row) row.remove();
+                });
+            }
+
+            document.getElementById('add_chapter').addEventListener('click', function(){
+                const row = document.createElement('div');
+                row.className = 'flex gap-2 items-center';
+                row.innerHTML = `<input type="text" name="chapters[]" class="flex-1 border rounded px-3 py-2" placeholder="Titre du chapitre"><button type="button" class="btn-remove text-red-600 px-3 py-1">Supprimer</button>`;
+                list.appendChild(row);
+                bindRemove(row.querySelector('.btn-remove'));
+            });
+
+            document.querySelectorAll('.btn-remove').forEach(bindRemove);
+
+            // Prefill from server-side data
+            const chapters = @json(old('chapters', $ue->chapters->pluck('title')->toArray()));
+            if (Array.isArray(chapters) && chapters.length > 0) {
+                list.innerHTML = '';
+                chapters.forEach(title => {
+                    const row = document.createElement('div');
+                    row.className = 'flex gap-2 items-center';
+                    row.innerHTML = `<input type="text" name="chapters[]" value="${(title||'').replace(/"/g,'&quot;')}" class="flex-1 border rounded px-3 py-2" placeholder="Titre du chapitre"><button type="button" class="btn-remove text-red-600 px-3 py-1">Supprimer</button>`;
+                    list.appendChild(row);
+                    bindRemove(row.querySelector('.btn-remove'));
+                });
+            }
+        })();
+    </script>
+@endpush

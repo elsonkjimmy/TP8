@@ -83,8 +83,7 @@
                 </div>
                 
                 <!-- Navigation principale -->
-                <nav class="hidden md:flex space-x-6">
-                    <a href="/" class="hover:text-accent transition-colors">Accueil</a>
+                <nav class="hidden md:flex space-x-6 items-center">
                     @auth
                         @if(Auth::user()->role === 'admin')
                             <x-dropdown align="left" width="48">
@@ -135,13 +134,14 @@
                             <a href="{{ route('delegate.dashboard') }}" class="hover:text-accent transition-colors">Delegate Dashboard</a>
                         @endif                      
                     @endauth
-                    <a href="{{ route('timetables.index') }}" class="hover:text-accent transition-colors">Emplois du temps</a>
-                    <a href="#" class="hover:text-accent transition-colors">Annonces</a>
-                    <a href="#" class="hover:text-accent transition-colors">À propos</a>
                 </nav>
-                
-                <!-- Boutons d'authentification -->
+
+                <!-- Navigation publique + Authentification -->
                 <div class="flex items-center space-x-4">
+                    <a href="/" class="hover:text-accent transition-colors font-medium">Accueil</a>
+                    <a href="{{ route('timetables.index') }}" class="hidden md:inline-block hover:text-accent transition-colors font-medium">Emplois du temps</a>
+                    
+                    <!-- Boutons d'authentification -->
                     @guest
                         <a href="{{ route('login') }}" class="hidden md:inline-block bg-white text-primary px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
                             <i class="fas fa-sign-in-alt mr-2"></i>Connexion
@@ -294,8 +294,6 @@
                     <ul class="space-y-2">
                         <li><a href="/" class="hover:text-accent transition-colors">Accueil</a></li>
                         <li><a href="{{ route('timetables.index') }}" class="hover:text-accent transition-colors">Emplois du temps</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">Annonces</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">À propos</a></li>
                     </ul>
                 </div>
                 

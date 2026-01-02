@@ -258,8 +258,8 @@ class SeanceGeneratorController extends Controller
             }
 
             // On confirm: retrieve pending templates and persist then generate
-            Log::info('generateFromImport confirmed, persisting templates', ['pending_count' => count($pending)]);
             $pending = session('pending_templates', []);
+            Log::info('generateFromImport confirmed, persisting templates', ['pending_count' => count($pending)]);
             $savedTemplates = [];
             foreach ($pending as $data) {
                 $template = SeanceTemplate::updateOrCreate(
@@ -307,9 +307,13 @@ class SeanceGeneratorController extends Controller
         $period = CarbonPeriod::create($startDate, $endDate);
 
         foreach ($period as $date) {
-            $dayOfWeek = $date->dayOfWeek; // Laravel uses 0=Sunday, 1=Monday, etc.
-            // Convert to our format: 1=Monday, ... 6=Saturday
-            $adjustedDayOfWeek = ($dayOfWeek === 0) ? 6 : ($dayOfWeek);
+            $dayOfWeek = $date->dayOfWeek; // Carbon: 0=Sunday, 1=Monday, ... 6=Saturday
+            // Skip Sundays entirely (we do not schedule on Sundays)
+            if ($dayOfWeek === 0) {
+                continue;
+            }
+            // For Monday-Saturday the day numbers align with our template day_of_week (1..6)
+            $adjustedDayOfWeek = $dayOfWeek;
 
             foreach ($templates as $template) {
                 // Only create seance if template matches the day of week

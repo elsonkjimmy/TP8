@@ -89,23 +89,26 @@
     <div class="mt-8 grid grid-cols-2 gap-4">
         <div class="bg-white rounded-xl shadow-lg p-4">
             <h3 class="font-bold mb-3">Mes UE</h3>
+            <div class="max-h-52 overflow-auto pr-2">
             <ul class="space-y-2">
                 @forelse($ues as $ue)
-                    <li class="flex justify-between items-center">
-                        <div>
-                            <div class="font-semibold">{{ $ue->nom }}</div>
+                    <li class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div class="break-words">
+                            <div class="font-semibold text-sm">{{ $ue->nom }}</div>
                             <div class="text-xs text-gray-600">{{ $ue->code }} — {{ $ue->filiere->nom ?? 'N/A' }}</div>
                         </div>
-                        <div class="text-xs text-gray-600">Progress: {{ $ue->progress ?? 0 }}%</div>
+                        <div class="text-xs text-gray-600 mt-1 sm:mt-0">Progress: {{ $ue->progress ?? 0 }}%</div>
                     </li>
                 @empty
                     <li class="text-gray-500">Aucune UE assignée.</li>
                 @endforelse
             </ul>
+            </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-lg p-4">
             <h3 class="font-bold mb-3">Rapports récents</h3>
+            <div class="max-h-60 overflow-auto pr-2">
             <ul class="space-y-2 text-sm">
                 @forelse($reports as $report)
                     <li class="flex justify-between items-center">
@@ -121,38 +124,65 @@
                     <li class="text-gray-500">Aucun rapport récent.</li>
                 @endforelse
             </ul>
+            </div>
         </div>
     </div>
 
-    <div class="mt-8 bg-white rounded-xl shadow-lg p-4">
+        <div class="mt-8 bg-white rounded-xl shadow-lg p-4">
         <h3 class="font-bold mb-3">Gestion des délégués (par modèle de séance)</h3>
+
+        @php
+            $dayNames = [1=>'Lundi',2=>'Mardi',3=>'Mercredi',4=>'Jeudi',5=>'Vendredi',6=>'Samedi'];
+            $grouped = $templates->groupBy('day_of_week');
+        @endphp
+
         <div class="space-y-4">
-            @foreach($templates as $template)
-                <div class="p-3 border rounded flex items-center justify-between">
-                    <div>
-                        <div class="font-medium">{{ $template->ue->nom ?? 'UE' }} — {{ $template->groupe->nom ?? '' }} ({{ $template->start_time }} - {{ $template->end_time }})</div>
-                        <div class="text-xs text-gray-600">Délégués: @if($template->delegates->isEmpty()) <span class="text-gray-400">(aucun)</span> @else {{ $template->delegates->pluck('name')->join(', ') }} @endif</div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <form action="{{ route('teacher.seance-templates.delegates.store', $template->id) }}" method="POST" class="flex items-center">
-                            @csrf
-                            <input type="hidden" name="_method" value="POST">
-                            <select name="delegate_id" class="text-sm border rounded px-2 py-1">
-                                <option value="">Ajouter délégué...</option>
-                                @foreach($delegates as $d)
-                                    <option value="{{ $d->id }}">{{ $d->name }}</option>
+            <div class="max-h-80 overflow-auto pr-2">
+            @foreach($dayNames as $num => $label)
+                @php $group = $grouped->get($num, collect()); @endphp
+                <div class="border rounded">
+                    <button type="button" class="w-full text-left px-4 py-3 bg-gray-100 flex items-center justify-between" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                        <div class="font-semibold">{{ $label }} <span class="text-sm text-gray-600">({{ $group->count() }} créneau(s))</span></div>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="p-3 hidden">
+                        @if($group->isEmpty())
+                            <div class="text-gray-500 text-sm">Aucun créneau pour ce jour.</div>
+                        @else
+                            <div class="space-y-3">
+                                @foreach($group as $template)
+                                    <div class="p-3 border rounded flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        <div class="flex-1">
+                                            <div class="font-medium">{{ $template->ue->nom ?? 'UE' }} — {{ $template->groupe->nom ?? '' }} <span class="text-xs text-gray-500">({{ $template->start_time }} - {{ $template->end_time }})</span></div>
+                                            <div class="text-xs text-gray-600">Délégués: @if($template->delegates->isEmpty()) <span class="text-gray-400">(aucun)</span> @else {{ $template->delegates->map(fn($d)=>trim(($d->first_name ?? '') . ' ' . ($d->last_name ?? '')))->join(', ') }} @endif</div>
+                                        </div>
+                                        <div class="w-full sm:w-auto">
+                                            <form action="{{ route('teacher.seance-templates.delegates.store', $template->id) }}" method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                                @csrf
+                                                <input type="hidden" name="_method" value="POST">
+                                                <select name="delegate_id" class="text-sm border rounded px-2 py-2 w-full sm:w-56">
+                                                    <option value="">Ajouter délégué...</option>
+                                                    @foreach($delegates as $d)
+                                                        <option value="{{ $d->id }}">{{ trim(($d->first_name ?? '') . ' ' . ($d->last_name ?? '')) }}</option>
+                                                    @endforeach
+                                                </select>
+                                                <button class="ml-0 sm:ml-2 w-full sm:w-auto text-sm bg-primary text-white px-3 py-2 rounded">Ajouter</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
-                            <button class="ml-2 text-sm bg-primary text-white px-3 py-1 rounded">Ajouter</button>
-                        </form>
+                            </div>
+                        @endif
                     </div>
                 </div>
             @endforeach
+            </div>
         </div>
     </div>
     <div class="mt-6 grid grid-cols-2 gap-4">
         <div class="bg-white rounded-xl shadow-lg p-4">
             <h3 class="font-bold mb-3">Rapports en attente de validation</h3>
+            <div class="max-h-56 overflow-auto pr-2">
             <ul class="space-y-2 text-sm">
                 @forelse($pendingReports as $pr)
                     <li class="flex justify-between items-center">
@@ -168,10 +198,12 @@
                     <li class="text-gray-500">Aucun rapport en attente.</li>
                 @endforelse
             </ul>
+            </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-lg p-4">
             <h3 class="font-bold mb-3">Notifications</h3>
+            <div class="max-h-56 overflow-auto pr-2">
             <ul class="space-y-2 text-sm">
                 @forelse($notifications as $note)
                     <li class="text-sm">{{ $note->contenu }} <span class="text-xs text-gray-500">({{ \Carbon\Carbon::parse($note->created_at)->diffForHumans() }})</span></li>
@@ -179,6 +211,7 @@
                     <li class="text-gray-500">Aucune notification.</li>
                 @endforelse
             </ul>
+            </div>
         </div>
     </div>
 </div>

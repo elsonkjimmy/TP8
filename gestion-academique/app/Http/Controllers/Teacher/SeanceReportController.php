@@ -14,7 +14,7 @@ class SeanceReportController extends Controller
 {
     public function create($seanceId)
     {
-        $seance = Seance::with(['ue','groupe','salle','delegates'])->findOrFail($seanceId);
+        $seance = Seance::with(['ue.chapters','groupe','salle','delegates'])->findOrFail($seanceId);
         $user = Auth::user();
 
         // authorization: only assigned teacher or their delegate can create
@@ -39,6 +39,7 @@ class SeanceReportController extends Controller
 
         $data = $request->validate([
             'contenu' => 'nullable|string',
+            'chapter_id' => 'nullable|exists:chapters,id',
         ]);
 
         // Determine workflow: if teacher submits -> validated and mark seance completed; if delegate -> submitted
@@ -56,6 +57,7 @@ class SeanceReportController extends Controller
             // legacy support: set delegue_id when a delegate fills the report
             'delegue_id' => $isDelegate ? $user->id : null,
             'contenu' => $data['contenu'] ?? null,
+            'chapter_id' => $data['chapter_id'] ?? null,
             'status' => $status,
             // write legacy column too to satisfy older schemas
             'statut' => $status,
@@ -145,7 +147,7 @@ class SeanceReportController extends Controller
 
     public function show($reportId)
     {
-        $rapportSeance = RapportSeance::with(['seance.ue', 'seance.groupe', 'seance.salle', 'seance.delegates', 'enseignant', 'delegue'])->findOrFail($reportId);
+        $rapportSeance = RapportSeance::with(['seance.ue', 'seance.groupe', 'seance.salle', 'seance.delegates', 'enseignant', 'delegue', 'chapter'])->findOrFail($reportId);
         $user = Auth::user();
 
         // Authorization: teacher owner, the user who filled it, a delegate, or admin

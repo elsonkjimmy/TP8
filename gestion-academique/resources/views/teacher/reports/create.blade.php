@@ -29,6 +29,22 @@
         <form action="{{ $user && isset($user->role) && $user->role === 'delegate' ? route('delegate.seances.reports.store', $seance->id) : route('teacher.seances.reports.store', $seance->id) }}" method="POST">
             @csrf
 
+                <!-- Chapitre sélection -->
+                @if(optional($seance->ue)->chapters && $seance->ue->chapters->isNotEmpty())
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="chapter_id">Chapitre traité (optionnel)</label>
+                        <select id="chapter_id" name="chapter_id" class="w-full border rounded p-2 @error('chapter_id') border-red-500 @enderror">
+                            <option value="">-- Aucun --</option>
+                            @foreach($seance->ue->chapters as $chapter)
+                                <option value="{{ $chapter->id }}" {{ old('chapter_id', $seance->rapportSeance->chapter_id ?? '') == $chapter->id ? 'selected' : '' }}>{{ $chapter->title }}</option>
+                            @endforeach
+                        </select>
+                        @error('chapter_id')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
+
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="contenu">Contenu du rapport</label>
                 <textarea id="contenu" name="contenu" rows="8" class="w-full border rounded p-3 @error('contenu') border-red-500 @enderror">{{ old('contenu', $seance->rapportSeance->contenu ?? '') }}</textarea>

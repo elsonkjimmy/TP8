@@ -16,6 +16,15 @@
                 <p class="text-gray-700 text-sm font-bold mb-2">UE :</p>
                 <p class="text-gray-900">{{ $rapportSeance->seance->ue->nom ?? 'N/A' }} ({{ $rapportSeance->seance->ue->code ?? 'N/A' }})</p>
             </div>
+            @if($rapportSeance->chapter)
+                <div class="mb-4">
+                    <p class="text-gray-700 text-sm font-bold mb-2">Chapitre traité :</p>
+                    <p class="text-gray-900">{{ $rapportSeance->chapter->title }}</p>
+                    @if($rapportSeance->chapter->description)
+                        <p class="text-gray-600 text-sm mt-1">{{ $rapportSeance->chapter->description }}</p>
+                    @endif
+                </div>
+            @endif
             <div class="mb-4">
                 <p class="text-gray-700 text-sm font-bold mb-2">Enseignant :</p>
                 <p class="text-gray-900">{{ $rapportSeance->seance->enseignant->first_name ?? '' }} {{ $rapportSeance->seance->enseignant->last_name ?? '' }}</p>
