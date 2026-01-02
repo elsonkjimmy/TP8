@@ -57,10 +57,11 @@ Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefi
     Route::get('/reports/{rapportSeance}', [TeacherRapportSeanceController::class, 'show'])->name('reports.show');
 });
 
+use App\Http\Controllers\DelegateController; // Add this line
+
 Route::middleware(['auth', 'verified', 'role:delegate'])->name('delegate.')->prefix('delegate')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('delegate.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DelegateController::class, 'index'])->name('dashboard');
+    Route::patch('/reports/{rapportSeance}/status', [DelegateController::class, 'updateReportStatus'])->name('reports.updateStatus');
 });
 
 
