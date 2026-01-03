@@ -4,6 +4,12 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
+@extends('layouts.app')
+
+@section('title', 'Tableau de bord Délégué')
+
+@section('content')
+    <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-primary mb-6">Mon Tableau de bord Délégué</h1>
 
         @if (session('success'))
@@ -89,7 +95,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                 <div class="p-4 bg-gray-100 border-b border-gray-200">
                     <h2 class="text-xl font-bold text-primary">Rapports de Séance à Valider</h2>
                 </div>
@@ -171,6 +177,28 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            {{-- Section "Mes brouillons" from T4 --}}
+            <div class="bg-white rounded-xl shadow p-4">
+                <h2 class="font-semibold mb-3">Mes brouillons</h2>
+                @if($draftReports->isEmpty())
+                    <p class="text-gray-500">Aucun brouillon pour le moment.</p>
+                @else
+                    <ul class="space-y-2">
+                        @foreach($draftReports as $r)
+                            <li class="flex justify-between items-center border rounded p-3">
+                                <div>
+                                    <div class="font-medium">{{ $r->seance->ue->nom ?? 'Séance' }}</div>
+                                    <div class="text-xs text-gray-600">{{ \Carbon\Carbon::parse($r->seance->jour)->format('d/m/Y') }}</div>
+                                </div>
+                                <div>
+                                    <a href="{{ route('delegate.reports.show', $r->id) }}" class="text-blue-600 text-sm">Continuer</a>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </div>
         @else
             <div class="bg-white rounded-xl shadow-lg p-6 text-center text-gray-600">

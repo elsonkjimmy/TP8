@@ -107,6 +107,19 @@
                             <p class="text-red-500 text-xs italic">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <!-- Semestre -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="semester">Semestre</label>
+                        <select id="semester" name="semester" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('semester') border-red-500 @enderror">
+                            <option value="">-- Aucun --</option>
+                            <option value="S1" {{ old('semester', $seance->semester) == 'S1' ? 'selected' : '' }}>Semestre 1 (S1)</option>
+                            <option value="S2" {{ old('semester', $seance->semester) == 'S2' ? 'selected' : '' }}>Semestre 2 (S2)</option>
+                        </select>
+                        @error('semester')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end mt-6">

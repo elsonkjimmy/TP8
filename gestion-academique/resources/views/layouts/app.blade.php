@@ -73,9 +73,7 @@
             <div class="flex justify-between items-center py-4">
                 <!-- Logo et titre -->
                 <div class="flex items-center space-x-3">
-                    <div class="bg-white p-2 rounded-lg">
-                        <i class="fas fa-university text-primary text-2xl"></i>
-                    </div>
+                    <img src="{{ asset('images/Blason_uy1.png') }}" alt="UY1 Logo" class="h-14 w-auto rounded-[5px] object-contain">
                     <div>
                         <h1 class="text-xl font-bold">Département d'Informatique</h1>
                         <p class="text-sm text-gray-200">Université de Yaoundé I</p>
@@ -83,8 +81,7 @@
                 </div>
                 
                 <!-- Navigation principale -->
-                <nav class="hidden md:flex space-x-6">
-                    <a href="/" class="hover:text-accent transition-colors">Accueil</a>
+                <nav class="hidden md:flex space-x-6 items-center">
                     @auth
                         @if(Auth::user()->role === 'admin')
                             <x-dropdown align="left" width="48">
@@ -135,13 +132,14 @@
                             <a href="{{ route('delegate.dashboard') }}" class="hover:text-accent transition-colors">Delegate Dashboard</a>
                         @endif                      
                     @endauth
-                    <a href="{{ route('timetables.index') }}" class="hover:text-accent transition-colors">Emplois du temps</a>
-                    <a href="#" class="hover:text-accent transition-colors">Annonces</a>
-                    <a href="#" class="hover:text-accent transition-colors">À propos</a>
                 </nav>
-                
-                <!-- Boutons d'authentification -->
+
+                <!-- Navigation publique + Authentification -->
                 <div class="flex items-center space-x-4">
+                    <a href="/" class="hover:text-accent transition-colors font-medium">Accueil</a>
+                    <a href="{{ route('timetables.index') }}" class="hidden md:inline-block hover:text-accent transition-colors font-medium">Emplois du temps</a>
+                    
+                    <!-- Boutons d'authentification -->
                     @guest
                         <a href="{{ route('login') }}" class="hidden md:inline-block bg-white text-primary px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
                             <i class="fas fa-sign-in-alt mr-2"></i>Connexion
@@ -185,7 +183,7 @@
     </header>
 
     <!-- Mobile Menu -->
-    <div class="mobile-menu fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 md:hidden">
+    <div class="mobile-menu fixed inset-y-0 left-0 w-64 bg-white shadow-xl z-50 md:hidden overflow-y-auto" style="max-height:100vh;">
         <div class="p-6">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-xl font-bold text-primary">Menu</h2>
@@ -294,8 +292,6 @@
                     <ul class="space-y-2">
                         <li><a href="/" class="hover:text-accent transition-colors">Accueil</a></li>
                         <li><a href="{{ route('timetables.index') }}" class="hover:text-accent transition-colors">Emplois du temps</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">Annonces</a></li>
-                        <li><a href="#" class="hover:text-accent transition-colors">À propos</a></li>
                     </ul>
                 </div>
                 

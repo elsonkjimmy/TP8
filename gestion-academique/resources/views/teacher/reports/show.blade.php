@@ -16,6 +16,15 @@
                 <p class="text-gray-700 text-sm font-bold mb-2">UE :</p>
                 <p class="text-gray-900">{{ $rapportSeance->seance->ue->nom ?? 'N/A' }} ({{ $rapportSeance->seance->ue->code ?? 'N/A' }})</p>
             </div>
+            @if($rapportSeance->chapter)
+                <div class="mb-4">
+                    <p class="text-gray-700 text-sm font-bold mb-2">Chapitre traité :</p>
+                    <p class="text-gray-900">{{ $rapportSeance->chapter->title }}</p>
+                    @if($rapportSeance->chapter->description)
+                        <p class="text-gray-600 text-sm mt-1">{{ $rapportSeance->chapter->description }}</p>
+                    @endif
+                </div>
+            @endif
             <div class="mb-4">
                 <p class="text-gray-700 text-sm font-bold mb-2">Enseignant :</p>
                 <p class="text-gray-900">{{ $rapportSeance->seance->enseignant->first_name ?? '' }} {{ $rapportSeance->seance->enseignant->last_name ?? '' }}</p>
@@ -42,10 +51,10 @@
                 <p class="text-gray-700 text-sm font-bold mb-2">Statut du Rapport :</p>
                 <span class="relative inline-block px-3 py-1 font-semibold leading-tight">
                     <span aria-hidden="true" class="absolute inset-0 opacity-50 rounded-full 
-                        @if($rapportSeance->statut == 'approved') bg-green-200 text-green-800
-                        @elseif($rapportSeance->statut == 'rejected') bg-red-200 text-red-800
+                        @if($rapportSeance->status == 'validated') bg-green-200 text-green-800
+                        @elseif($rapportSeance->status == 'rejected') bg-red-200 text-red-800
                         @else bg-yellow-200 text-yellow-800 @endif"></span>
-                    <span class="relative">{{ ucfirst($rapportSeance->statut) }}</span>
+                    <span class="relative">{{ ucfirst($rapportSeance->status) }}</span>
                 </span>
             </div>
             @if($rapportSeance->delegue)

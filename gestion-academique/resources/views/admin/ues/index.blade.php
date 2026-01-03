@@ -19,6 +19,34 @@
         @endif
 
         <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-4 border-b">
+                <form method="GET" class="flex gap-3 items-end">
+                    <div>
+                        <label class="text-sm text-gray-600">Filière</label>
+                        <select name="filiere_id" class="block mt-1 border rounded px-3 py-2">
+                            <option value="">Toutes</option>
+                            @foreach($filieres as $f)
+                                <option value="{{ $f->id }}" {{ request('filiere_id') == $f->id ? 'selected' : '' }}>{{ $f->nom }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600">Groupe</label>
+                        <select name="groupe_id" class="block mt-1 border rounded px-3 py-2">
+                            <option value="">Tous</option>
+                            @foreach($groupes as $g)
+                                <option value="{{ $g->id }}" {{ request('groupe_id') == $g->id ? 'selected' : '' }}>{{ $g->nom }} ({{ $g->filiere?->nom }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded">Filtrer</button>
+                    </div>
+                    <div>
+                        <a href="{{ route('admin.ues.index') }}" class="text-sm text-gray-600 underline">Réinitialiser</a>
+                    </div>
+                </form>
+            </div>
             <div class="table-responsive">
                 <table class="min-w-full leading-normal">
                     <thead>

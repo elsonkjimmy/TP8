@@ -11,6 +11,17 @@
             </a>
         </div>
 
+        @if ($errors->any())
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                <strong class="font-bold">Erreur!</strong>
+                <ul class="list-disc list-inside mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li class="text-sm">{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="bg-white rounded-xl shadow-lg p-6">
             <form action="{{ route('admin.seances.store') }}" method="POST">
                 @csrf
@@ -103,6 +114,19 @@
                             @endforeach
                         </select>
                         @error('enseignant_id')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Semestre -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="semester">Semestre</label>
+                        <select id="semester" name="semester" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('semester') border-red-500 @enderror">
+                            <option value="">-- Aucun --</option>
+                            <option value="S1" {{ old('semester') == 'S1' ? 'selected' : '' }}>Semestre 1 (S1)</option>
+                            <option value="S2" {{ old('semester') == 'S2' ? 'selected' : '' }}>Semestre 2 (S2)</option>
+                        </select>
+                        @error('semester')
                             <p class="text-red-500 text-xs italic">{{ $message }}</p>
                         @enderror
                     </div>

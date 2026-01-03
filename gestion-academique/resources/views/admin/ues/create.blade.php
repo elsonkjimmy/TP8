@@ -50,6 +50,22 @@
                         @enderror
                     </div>
 
+                    <!-- Groupe -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe (Niveau)</label>
+                        <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror">
+                            <option value="">Sélectionner un groupe (optionnel)</option>
+                            @foreach ($groupes as $groupe)
+                                <option value="{{ $groupe->id }}" {{ old('groupe_id') == $groupe->id ? 'selected' : '' }}>
+                                    {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('groupe_id')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Enseignant -->
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="enseignant_id">Enseignant Responsable</label>
@@ -72,7 +88,50 @@
                         <i class="fas fa-save mr-2"></i>Créer l'UE
                     </button>
                 </div>
+                <!-- Server-rendered chapters container (fallback if JS insertion fails) -->
+                <div id="chapters_container" class="bg-white rounded-xl shadow-lg p-6 mt-6">
+                    <h3 class="text-lg font-bold mb-3">Chapitres de l'UE</h3>
+                    <div id="chapters_list" class="space-y-2">
+                        <div class="flex gap-2 items-center">
+                            <input type="text" name="chapters[]" class="flex-1 border rounded px-3 py-2" placeholder="Titre du chapitre">
+                            <button type="button" class="btn-remove text-red-600 px-3 py-1">Supprimer</button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" id="add_chapter" class="bg-green-600 text-white px-3 py-2 rounded">Ajouter un chapitre</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        // Chapters dynamic list
+        (function(){
+            // Use server-rendered container if present
+            const container = document.getElementById('chapters_container');
+            const list = container.querySelector('#chapters_list');
+
+            function bindRemove(btn) {
+                btn.addEventListener('click', function(){
+                    const row = this.closest('div.flex');
+                    if (row) row.remove();
+                });
+            }
+
+            document.getElementById('add_chapter').addEventListener('click', function(){
+                const row = document.createElement('div');
+                row.className = 'flex gap-2 items-center';
+                row.innerHTML = `<input type="text" name="chapters[]" class="flex-1 border rounded px-3 py-2" placeholder="Titre du chapitre"><button type="button" class="btn-remove text-red-600 px-3 py-1">Supprimer</button>`;
+                list.appendChild(row);
+                bindRemove(row.querySelector('.btn-remove'));
+            });
+
+            document.querySelectorAll('.btn-remove').forEach(bindRemove);
+
+            // Prefill from old input if present (server-side handled on edit), otherwise leave a blank row
+        })();
+    </script>
+@endpush

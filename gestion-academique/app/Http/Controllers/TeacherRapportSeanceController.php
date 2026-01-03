@@ -25,6 +25,7 @@ class TeacherRapportSeanceController extends Controller
             return redirect()->route('teacher.dashboard')->with('error', 'Un rapport existe déjà pour cette séance.');
         }
 
+        $seance->load('ue.chapters');
         return view('teacher.reports.create', compact('seance'));
     }
 
@@ -40,15 +41,17 @@ class TeacherRapportSeanceController extends Controller
 
         $validated = $request->validate([
             'contenu' => ['required', 'string'],
-            'statut' => ['required', 'string', Rule::in(['pending', 'approved', 'rejected'])], // Example statuses
+            'statut' => ['required', 'string', Rule::in(['pending', 'approved', 'rejected'])],
+            'chapter_id' => ['nullable','exists:chapters,id'],
         ]);
 
         RapportSeance::create([
             'seance_id' => $seance->id,
             'enseignant_id' => Auth::id(),
-            'délégué_id' => null, // Delegate will be assigned later if needed
+            'délégué_id' => null,
             'contenu' => $validated['contenu'],
             'statut' => $validated['statut'],
+            'chapter_id' => $validated['chapter_id'] ?? null,
         ]);
 
         return redirect()->route('teacher.dashboard')->with('success', 'Rapport de séance créé avec succès.');
