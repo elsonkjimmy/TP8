@@ -1,0 +1,16 @@
+# Laravel
+**/vendor/
+**/.env
+**/node_modules/
+**/storage/logs/
+**/storage/framework/cache/
+**/storage/framework/sessions/
+**/storage/framework/views/
+
+# Electron
+desktop-app/node_modules/
+desktop-app/dist/
+
+# OS
+.DS_Store
+Thumbs.db

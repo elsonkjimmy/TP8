@@ -1,0 +1,52 @@
+{
+  "name": "gestion-academique-desktop",
+  "productName": "Gestion Académique",
+  "version": "1.0.0",
+  "description": "Application de bureau pour la Gestion Académique",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": [
+    "gestion",
+    "academique",
+    "electron"
+  ],
+  "homepage": "https://github.com/aristide/gestion-academique",
+  "author": {
+    "name": "Aristide",
+    "email": "aristide@example.com"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.aristide.gestionacademique",
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Education"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/*",
+      "!node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!node_modules/*.d.ts",
+      "!node_modules/.bin",
+      "!src/*"
+    ]
+  }
+}
