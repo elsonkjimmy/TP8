@@ -80,11 +80,14 @@
                     </div>
                 </div>
                 
-                <!-- Navigation principale -->
-                <nav class="hidden md:flex space-x-6 items-center">
+                <!-- Navigation principale - Alignée à droite -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="hover:text-accent transition-colors font-medium">Accueil</a>
+                    <a href="{{ route('timetables.index') }}" class="hover:text-accent transition-colors font-medium">Emplois du temps</a>
+                    
                     @auth
                         @if(Auth::user()->role === 'admin')
-                            <x-dropdown align="left" width="48">
+                            <x-dropdown align="right" width="48">
                                 <x-slot name="trigger">
                                     <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white hover:text-gray-200 focus:outline-none transition ease-in-out duration-150">
                                         <div>Administration</div>
@@ -127,21 +130,15 @@
                                 </x-slot>
                             </x-dropdown>
                         @elseif(Auth::user()->role === 'teacher')
-                            <a href="{{ route('teacher.dashboard') }}" class="hover:text-accent transition-colors">Teacher Dashboard</a>
+                            <a href="{{ route('teacher.dashboard') }}" class="hover:text-accent transition-colors font-medium">Dashboard Enseignant</a>
                         @elseif(Auth::user()->role === 'delegate')
-                            <a href="{{ route('delegate.dashboard') }}" class="hover:text-accent transition-colors">Delegate Dashboard</a>
+                            <a href="{{ route('delegate.dashboard') }}" class="hover:text-accent transition-colors font-medium">Dashboard Délégué</a>
                         @endif                      
                     @endauth
-                </nav>
 
-                <!-- Navigation publique + Authentification -->
-                <div class="flex items-center space-x-4">
-                    <a href="/" class="hover:text-accent transition-colors font-medium">Accueil</a>
-                    <a href="{{ route('timetables.index') }}" class="hidden md:inline-block hover:text-accent transition-colors font-medium">Emplois du temps</a>
-                    
-                    <!-- Boutons d'authentification -->
+                    <!-- Authentification -->
                     @guest
-                        <a href="{{ route('login') }}" class="hidden md:inline-block bg-white text-primary px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                        <a href="{{ route('login') }}" class="bg-white text-primary px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors">
                             <i class="fas fa-sign-in-alt mr-2"></i>Connexion
                         </a>
                     @else
