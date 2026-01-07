@@ -45,8 +45,8 @@
                                         <p class="text-xs mt-1">Salle: {{ $seance->salle->numero ?? 'N/A' }}</p>
                                         <p class="text-xs">Groupe: {{ $seance->groupe->nom ?? 'N/A' }}</p>
                                         <p class="text-xs">Statut: 
-                                            <span class="px-2 py-0.5 rounded text-white text-[10px] @if($seance->status=='completed') bg-green-600 @elseif($seance->status=='cancelled') bg-red-600 @else bg-yellow-600 @endif">
-                                                {{ ucfirst($seance->status) }}
+                                            <span class="px-2 py-0.5 rounded text-white text-[10px] @if($seance->status=='completed') bg-green-600 @elseif($seance->status=='cancelled') bg-red-600 @elseif($seance->status=='no_fait') bg-red-700 @else bg-yellow-600 @endif">
+                                                {{ ucfirst(str_replace('_', ' ', $seance->status)) }}
                                             </span>
                                         </p>
                                         <div class="mt-2 flex gap-1 flex-wrap">
