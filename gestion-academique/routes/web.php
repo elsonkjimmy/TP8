@@ -87,6 +87,11 @@ Route::middleware(['auth', 'verified', 'role:delegate'])->name('delegate.')->pre
     Route::get('/seances/{seance}/reports/create', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'create'])->name('seances.reports.create');
     Route::post('/seances/{seance}/reports', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'store'])->name('seances.reports.store');
     Route::get('/reports/{report}', [\App\Http\Controllers\Teacher\SeanceReportController::class, 'show'])->name('reports.show');
+    
+    // Edit/update/delete routes for delegate reports
+    Route::get('/reports/{report}/edit', [DelegateController::class, 'editReport'])->name('reports.edit');
+    Route::patch('/reports/{report}', [DelegateController::class, 'updateReport'])->name('reports.update');
+    Route::delete('/reports/{report}', [DelegateController::class, 'deleteReport'])->name('reports.destroy');
 });
 
 
