@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Exports\UsersExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -123,5 +124,13 @@ class AdminUserController extends Controller
         Excel::import(new UsersImport, $request->file('file'));
 
         return redirect()->route('admin.users.index')->with('success', 'Utilisateurs importés avec succès.');
+    }
+
+    /**
+     * Export users to Excel file.
+     */
+    public function exportUsers()
+    {
+        return Excel::download(new UsersExport, 'utilisateurs_'.date('Y-m-d_H-i-s').'.xlsx');
     }
 }

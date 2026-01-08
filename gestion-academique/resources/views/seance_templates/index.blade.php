@@ -57,9 +57,9 @@
                 </select>
             </div>
             <div>
-                <label for="groupe_id" class="block text-gray-700 text-sm font-bold mb-2">Groupe</label>
+                <label for="groupe_id" class="block text-gray-700 text-sm font-bold mb-2">Niveau</label>
                 <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-                    <option value="">Tous les groupes</option>
+                    <option value="">Tous les niveaux</option>
                     @foreach ($groupes as $groupe)
                         <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ $selectedGroupe == $groupe->id ? 'selected' : '' }}>
                             {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
@@ -105,7 +105,7 @@
                                         <p class="font-bold">{{ $template->ue->nom ?? 'N/A' }}</p>
                                         <p class="text-xs">{{ $template->ue->code ?? 'N/A' }}</p>
                                         <p class="text-xs mt-1">Salle: {{ $template->salle->numero ?? 'N/A' }}</p>
-                                        <p class="text-xs">Groupe: {{ $template->groupe->nom ?? 'N/A' }}</p>
+                                        <p class="text-xs">Niveau: {{ $template->groupe->nom ?? 'N/A' }}</p>
                                         <p class="text-xs">{{ $template->enseignant->first_name ?? '' }} {{ $template->enseignant->last_name ?? '' }}</p>
                                         <div class="mt-2 flex gap-1">
                                             <a href="{{ route('seance-templates.edit', $template) }}" class="text-blue-600 text-xs hover:underline">Edit</a>

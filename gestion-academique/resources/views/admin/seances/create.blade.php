@@ -86,11 +86,11 @@
                         @enderror
                     </div>
 
-                    <!-- Groupe -->
+                    <!-- Niveau -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe</label>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Niveau</label>
                         <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror" required>
-                            <option value="">Sélectionner un groupe</option>
+                            <option value="">Sélectionner un niveau</option>
                             @foreach ($groupes as $groupe)
                                 <option value="{{ $groupe->id }}" {{ old('groupe_id') == $groupe->id ? 'selected' : '' }}>
                                     {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? 'N/A' }})

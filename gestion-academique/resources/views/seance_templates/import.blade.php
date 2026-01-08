@@ -17,18 +17,18 @@
         <h2 class="text-lg font-bold mb-4">Format du fichier CSV</h2>
         <p class="mb-4 text-gray-700">Le fichier doit contenir les colonnes suivantes (dans cet ordre exact):</p>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
-            Jour, Heure Début, Heure Fin, Semestre, UE Code, UE Nom, Filière, Groupe, Salle, Enseignant, Commentaire
+            Jour, Heure Début, Heure Fin, Semestre, UE Code, UE Nom, Filière, Niveau, Salle, Enseignant, Commentaire
         </div>
         <p class="mt-4 text-gray-700"><strong>Exemple:</strong></p>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
-            Lundi,08:00,11:00,INFO101,Informatique,Génie Informatique,Groupe 1,Salle 101,Dupont Martin,
+            Lundi,08:00,11:00,INFO101,Informatique,Génie Informatique,Niveau 1,Salle 101,Dupont Martin,
         </div>
         <p class="mt-4 text-gray-700"><strong>Notes:</strong></p>
         <ul class="list-disc list-inside text-gray-700">
             <li>Jour: Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi</li>
             <li>Heures: Format HH:MM (24h)</li>
             <li>UE Code: Doit correspondre à un code UE existant</li>
-            <li>Filière, Groupe, Salle, Enseignant: Optionnels (laissez vide si non applicable)</li>
+            <li>Filière, Niveau, Salle, Enseignant: Optionnels (laissez vide si non applicable)</li>
             <li>Enseignant: Format "Prénom Nom"</li>
         </ul>
     </div>
@@ -53,14 +53,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Groupe / Niveau <span class="text-red-500">*</span></label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="groupe_id">Niveau <span class="text-red-500">*</span></label>
                     <select id="groupe_id" name="groupe_id" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror">
-                        <option value="">-- Sélectionner un groupe --</option>
+                        <option value="">-- Sélectionner un niveau --</option>
                         @foreach ($groupes as $groupe)
                             <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ old('groupe_id') == $groupe->id ? 'selected' : '' }}>{{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})</option>
                         @endforeach
                     </select>
-                    <p class="text-xs text-gray-500 mt-1">Le groupe est obligatoire</p>
+                    <p class="text-xs text-gray-500 mt-1">Le niveau est obligatoire</p>
                     @error('groupe_id')
                         <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror

@@ -116,11 +116,8 @@
                                         Gestion Salles
                                     </x-dropdown-link>
                                     <x-dropdown-link :href="route('admin.groupes.index')">
-                                        Gestion Groupes
-                                    </x-dropdown-link>
-                                    <x-dropdown-link :href="route('admin.users.import.form')">
-                                        Importer Utilisateurs
-                                    </x-dropdown-link>
+                                                Gestion Niveaux
+                                            </x-dropdown-link>
                                     <x-dropdown-link :href="route('admin.seances.index')">
                                         Gestion Séances
                                     </x-dropdown-link>
@@ -171,10 +168,12 @@
                             </x-slot>
                         </x-dropdown>
                     @endguest
-                    <button class="md:hidden text-white" onclick="toggleMobileMenu()">
-                        <i class="fas fa-bars text-2xl"></i>
-                    </button>
                 </div>
+
+                <!-- Bouton menu mobile -->
+                <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
             </div>
         </div>
     </header>

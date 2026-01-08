@@ -40,9 +40,9 @@
                 </div>
 
                 <div>
-                    <label for="groupe_id" class="block text-sm font-medium text-gray-700 mb-2">Groupe</label>
+                    <label for="groupe_id" class="block text-sm font-medium text-gray-700 mb-2">Niveau</label>
                     <select name="groupe_id" id="groupe_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
-                        <option value="">-- Tous les groupes --</option>
+                        <option value="">-- Tous les niveaux --</option>
                         @foreach ($groupes as $groupe)
                             <option value="{{ $groupe->id }}" {{ request('groupe_id') == $groupe->id ? 'selected' : '' }}>
                                 {{ $groupe->nom }}
@@ -98,7 +98,7 @@
                                 Salle
                             </th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Groupe
+                                Niveau
                             </th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Enseignant

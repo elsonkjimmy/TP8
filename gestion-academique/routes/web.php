@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('a
 
     Route::get('users/import', [AdminUserController::class, 'showImportForm'])->name('users.import.form');
     Route::post('users/import', [AdminUserController::class, 'importUsers'])->name('users.import');
+    Route::get('users/export', [AdminUserController::class, 'exportUsers'])->name('users.export');
     Route::resource('users', AdminUserController::class);
     Route::resource('filieres', AdminFiliereController::class);
     Route::resource('ues', AdminUeController::class);
