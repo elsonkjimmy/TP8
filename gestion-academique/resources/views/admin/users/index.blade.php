@@ -6,9 +6,17 @@
     <div class="container mx-auto px-4 py-8">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-primary">Gestion des Utilisateurs</h1>
-            <a href="{{ route('admin.users.create') }}" class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors">
-                <i class="fas fa-plus mr-2"></i>Ajouter un utilisateur
-            </a>
+            <div class="flex gap-3">
+                <a href="{{ route('admin.users.export') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                    <i class="fas fa-download mr-2"></i>Exporter
+                </a>
+                <a href="{{ route('admin.users.import.form') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-upload mr-2"></i>Importer
+                </a>
+                <a href="{{ route('admin.users.create') }}" class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors">
+                    <i class="fas fa-plus mr-2"></i>Ajouter
+                </a>
+            </div>
         </div>
 
         @if (session('success'))

@@ -20,7 +20,7 @@
             </select>
         </div>
         <div>
-            <label>Groupe (optionnel)</label>
+            <label>Niveau (optionnel)</label>
             <select name="groupe_id" class="w-full border p-2">
                 <option value="">--Aucun--</option>
                 @foreach($groupes as $g)

@@ -20,9 +20,9 @@
                     </select>
                 </div>
                 <div>
-                    <label for="groupe_id" class="block text-gray-700 text-sm font-bold mb-2">Groupe</label>
+                    <label for="groupe_id" class="block text-gray-700 text-sm font-bold mb-2">Niveau</label>
                     <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-                        <option value="">Tous les groupes</option>
+                        <option value="">Tous les niveaux</option>
                         @foreach ($groupes as $groupe)
                             <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ $selectedGroupe == $groupe->id ? 'selected' : '' }}>
                                 {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
@@ -68,7 +68,7 @@
                                             <p class="font-bold">{{ $seance->ue->nom ?? 'N/A' }}</p>
                                             <p class="text-xs">{{ $seance->ue->code ?? 'N/A' }}</p>
                                             <p class="text-xs mt-1">Salle: {{ $seance->salle->numero ?? 'N/A' }}</p>
-                                            <p class="text-xs">Groupe: {{ $seance->groupe->nom ?? 'N/A' }}</p>
+                                            <p class="text-xs">Niveau: {{ $seance->groupe->nom ?? 'N/A' }}</p>
                                             <p class="text-xs">Enseignant: {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}</p>
                                         </div>
                                     @empty
@@ -114,7 +114,7 @@
                                                     <p class="font-bold">{{ $seance->ue->nom ?? 'N/A' }}</p>
                                                     <p class="text-xs">{{ $seance->ue->code ?? 'N/A' }}</p>
                                                     <p class="text-xs mt-1">Salle: {{ $seance->salle->numero ?? 'N/A' }}</p>
-                                                    <p class="text-xs">Groupe: {{ $seance->groupe->nom ?? 'N/A' }}</p>
+                                                    <p class="text-xs">Niveau: {{ $seance->groupe->nom ?? 'N/A' }}</p>
                                                     <p class="text-xs">Enseignant: {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}</p>
                                                 </div>
                                             @endforeach

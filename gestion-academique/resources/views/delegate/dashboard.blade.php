@@ -4,12 +4,6 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
-@extends('layouts.app')
-
-@section('title', 'Tableau de bord Délégué')
-
-@section('content')
-    <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-primary mb-6">Mon Tableau de bord Délégué</h1>
 
         @if (session('success'))
@@ -49,6 +43,9 @@
                                     Enseignant
                                 </th>
                                 <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                                <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     Statut
                                 </th>
                             </tr>
@@ -72,6 +69,28 @@
                                         <p class="text-gray-900 whitespace-no-wrap">
                                             {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}
                                         </p>
+                                    </td>
+                                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                        @php
+                                            $canReport = false;
+                                            $now = \Carbon\Carbon::now();
+                                            try {
+                                                $seanceEnd = \Carbon\Carbon::parse($seance->heure_fin);
+                                                if ($now->greaterThanOrEqualTo($seanceEnd->copy()->subMinutes(30)) && $now->toDateString() === \Carbon\Carbon::parse($seance->jour)->toDateString()) {
+                                                    $canReport = true;
+                                                }
+                                            } catch (\Throwable $e) {
+                                                $canReport = false;
+                                            }
+
+                                            $report = $seance->rapportSeance ?? null;
+                                        @endphp
+
+                                        @if(!$report && $canReport)
+                                            <a href="{{ route('delegate.seances.reports.create', $seance->id) }}" class="text-xs bg-white text-blue-900 px-2 py-1 rounded hover:bg-blue-50"><i class="fas fa-file-alt"></i></a>
+                                        @elseif($report)
+                                            <a href="{{ route('delegate.reports.show', $report->id) }}" class="text-xs bg-white text-blue-900 px-2 py-1 rounded hover:bg-blue-50"><i class="fas fa-eye"></i></a>
+                                        @endif
                                     </td>
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                         <span class="relative inline-block px-3 py-1 font-semibold leading-tight">
@@ -145,23 +164,17 @@
                                     </td>
                                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                         <div class="flex items-center space-x-3">
-                                            <a href="{{ route('teacher.reports.show', $report->id) }}" class="text-blue-600 hover:text-blue-900" title="Voir le rapport">
+                                            <a href="{{ route('delegate.reports.show', $report->id) }}" class="text-blue-600 hover:text-blue-900" title="Voir le rapport">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <form action="{{ route('delegate.reports.updateStatus', $report->id) }}" method="POST">
+                                            <a href="{{ route('delegate.reports.edit', $report->id) }}" class="text-orange-600 hover:text-orange-900" title="Modifier le rapport">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('delegate.reports.destroy', $report->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce rapport ?');" style="display:inline">
                                                 @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="statut" value="approved">
-                                                <button type="submit" class="text-green-600 hover:text-green-900" title="Approuver le rapport">
-                                                    <i class="fas fa-check-circle"></i>
-                                                </button>
-                                            </form>
-                                            <form action="{{ route('delegate.reports.updateStatus', $report->id) }}" method="POST">
-                                                @csrf
-                                                @method('PATCH')
-                                                <input type="hidden" name="statut" value="rejected">
-                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Rejeter le rapport">
-                                                    <i class="fas fa-times-circle"></i>
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer le rapport">
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </div>

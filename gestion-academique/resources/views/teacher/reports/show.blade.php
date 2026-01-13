@@ -59,8 +59,23 @@
             </div>
             @if($rapportSeance->delegue)
                 <div class="mb-4">
-                    <p class="text-gray-700 text-sm font-bold mb-2">Validé par le Délégué :</p>
+                    <p class="text-gray-700 text-sm font-bold mb-2">Soumis par le Délégué :</p>
                     <p class="text-gray-900">{{ $rapportSeance->delegue->first_name }} {{ $rapportSeance->delegue->last_name }}</p>
+                </div>
+            @endif
+            
+            @if($rapportSeance->status === 'submitted')
+                <div class="mt-6 flex gap-4">
+                    <form action="{{ route('teacher.reports.validate', $rapportSeance->id) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                            <i class="fas fa-check mr-2"></i>Valider le rapport
+                        </button>
+                    </form>
+                    <a href="{{ route('teacher.dashboard') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour
+                    </a>
                 </div>
             @endif
         </div>
