@@ -118,11 +118,17 @@
                                     <x-dropdown-link :href="route('admin.groupes.index')">
                                                 Gestion Niveaux
                                             </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.groupe-effectifs.index')">
+                                        Gestion Effectifs
+                                    </x-dropdown-link>
                                     <x-dropdown-link :href="route('admin.seances.index')">
                                         Gestion Séances
                                     </x-dropdown-link>
                                     <x-dropdown-link :href="route('admin.notifications.index')">
                                         Gestion Notifications
+                                    </x-dropdown-link>
+                                    <x-dropdown-link :href="route('admin.demandes-modifications.index')">
+                                        Demandes de Modification
                                     </x-dropdown-link>
                                 </x-slot>
                             </x-dropdown>
@@ -212,6 +218,9 @@
                         <a href="{{ route('admin.groupes.index') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
                             <i class="fas fa-users mr-3"></i>Gestion Groupes
                         </a>
+                        <a href="{{ route('admin.groupe-effectifs.index') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                            <i class="fas fa-chart-bar mr-3"></i>Gestion Effectifs
+                        </a>
                         <a href="{{ route('admin.users.import.form') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
                             <i class="fas fa-file-excel mr-3"></i>Importer Utilisateurs
                         </a>
@@ -221,12 +230,15 @@
                         <a href="{{ route('admin.notifications.index') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
                             <i class="fas fa-bell mr-3"></i>Gestion Notifications
                         </a>
-                        <a href="{{ route('admin.notifications.index') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
-                            <i class="fas fa-bell mr-3"></i>Gestion Notifications
+                        <a href="{{ route('admin.demandes-modifications.index') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                            <i class="fas fa-comment-dots mr-3"></i>Demandes de Modification
                         </a>
                     @elseif(Auth::user()->role === 'teacher')
                         <a href="{{ route('teacher.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
                             <i class="fas fa-chalkboard-teacher mr-3"></i>Teacher Dashboard
+                        </a>
+                        <a href="{{ route('teacher.demandes.index') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">
+                            <i class="fas fa-comment-dots mr-3"></i>Mes demandes
                         </a>
                     @elseif(Auth::user()->role === 'delegate')
                         <a href="{{ route('delegate.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-primary hover:text-white transition-colors">

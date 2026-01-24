@@ -22,6 +22,44 @@
             </div>
         @endif
 
+        @if (session('warning'))
+            <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded relative mb-6">
+                <strong class="font-bold">⚠️ Attention!</strong>
+                <p class="text-sm mt-2">{{ session('warning') }}</p>
+                
+                @if (session('suggestions') && count(session('suggestions')) > 0)
+                    <div class="mt-4 bg-white rounded p-3">
+                        <p class="text-sm font-semibold mb-2">Salles recommandées:</p>
+                        <ul class="space-y-1">
+                            @foreach (session('suggestions') as $salle)
+                                <li class="text-sm">
+                                    <a href="{{ route('admin.seances.create') }}?salle_id={{ $salle['id'] }}" class="text-blue-600 hover:underline">
+                                        Salle {{ $salle['numero'] }} (capacité: {{ $salle['capacite'] }})
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                
+                <form method="POST" action="{{ route('admin.seances.store') }}" class="mt-4">
+                    @csrf
+                    @foreach (old() as $key => $value)
+                        @if (is_array($value))
+                            @foreach ($value as $v)
+                                <input type="hidden" name="{{ $key }}[]" value="{{ $v }}">
+                            @endforeach
+                        @else
+                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endif
+                    @endforeach
+                    <button type="submit" class="mt-2 bg-yellow-600 text-white px-4 py-2 rounded font-medium hover:bg-yellow-700 transition-colors">
+                        Continuer quand même
+                    </button>
+                </form>
+            </div>
+        @endif
+
         <div class="bg-white rounded-xl shadow-lg p-6">
             <form action="{{ route('admin.seances.store') }}" method="POST">
                 @csrf

@@ -19,9 +19,13 @@ class SeanceTemplateController extends Controller
     {
         $filieres = Filiere::all();
         $groupes = Groupe::all();
+        $enseignants = User::where('role', 'teacher')->orderBy('first_name')->get();
+        $salles = Salle::orderBy('numero')->get();
 
         $selectedFiliere = request()->input('filiere_id');
         $selectedGroupe = request()->input('groupe_id');
+        $selectedEnseignant = request()->input('enseignant_id');
+        $selectedSalle = request()->input('salle_id');
 
         // Filtrer les groupes selon la filière sélectionnée
         if ($selectedFiliere) {
@@ -36,6 +40,14 @@ class SeanceTemplateController extends Controller
 
         if ($selectedGroupe) {
             $query->where('groupe_id', $selectedGroupe);
+        }
+
+        if ($selectedEnseignant) {
+            $query->where('enseignant_id', $selectedEnseignant);
+        }
+
+        if ($selectedSalle) {
+            $query->where('salle_id', $selectedSalle);
         }
 
         $templates = $query->get();
@@ -75,8 +87,12 @@ class SeanceTemplateController extends Controller
         return view('seance_templates.index', compact(
             'filieres',
             'groupes',
+            'enseignants',
+            'salles',
             'selectedFiliere',
             'selectedGroupe',
+            'selectedEnseignant',
+            'selectedSalle',
             'timetableGrid',
             'timeSlots',
             'today',

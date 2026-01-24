@@ -11,10 +11,13 @@ use App\Http\Controllers\Admin\AdminSeanceController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\SeanceGeneratorController;
+use App\Http\Controllers\Admin\GroupeEffectifController;
+use App\Http\Controllers\Admin\AdminDemandeModificationController;
 use App\Http\Controllers\TimetableController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\Teacher\SeanceController as TeacherSeanceController;
 use App\Http\Controllers\Teacher\SeanceReportController;
+use App\Http\Controllers\Teacher\DemandeModificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -48,6 +51,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('a
     Route::resource('ues', AdminUeController::class);
     Route::resource('salles', AdminSalleController::class);
     Route::resource('groupes', AdminGroupeController::class);
+    Route::resource('groupe-effectifs', GroupeEffectifController::class, ['only' => ['index', 'store', 'destroy']]);
 
     // Advanced seance generation routes (MUST be before resource to avoid 404)
     Route::get('seances/generate/form', [SeanceGeneratorController::class, 'showForm'])->name('seances.generate.form');
@@ -59,6 +63,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('a
     Route::get('notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
     Route::get('notifications/create', [AdminNotificationController::class, 'create'])->name('notifications.create');
     Route::post('notifications', [AdminNotificationController::class, 'store'])->name('notifications.store');
+    Route::resource('demandes-modifications', AdminDemandeModificationController::class, ['only' => ['index', 'show']]);
+    Route::post('demandes-modifications/{demandeModification}/accept', [AdminDemandeModificationController::class, 'accept'])->name('demandes-modifications.accept');
+    Route::post('demandes-modifications/{demandeModification}/reject', [AdminDemandeModificationController::class, 'reject'])->name('demandes-modifications.reject');
 });
 
 Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefix('teacher')->group(function () {
@@ -74,6 +81,9 @@ Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefi
     // Template delegates management for teachers
     Route::post('/seance-templates/{seanceTemplate}/delegates', [\App\Http\Controllers\Teacher\TemplateDelegateController::class, 'store'])->name('seance-templates.delegates.store');
     Route::delete('/seance-templates/{seanceTemplate}/delegates/{user}', [\App\Http\Controllers\Teacher\TemplateDelegateController::class, 'destroy'])->name('seance-templates.delegates.destroy');
+
+    // Modification requests
+    Route::resource('demandes', DemandeModificationController::class, ['only' => ['index', 'create', 'store', 'show', 'destroy']]);
 });
 
 use App\Http\Controllers\Delegate\DelegateController; // Use the namespaced controller
@@ -104,10 +114,12 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 
 Route::get('/timetables', [TimetableController::class, 'index'])->name('timetables.index');
+Route::get('/timetables/get-filter-options', [TimetableController::class, 'getFilterOptions'])->name('timetables.get-filter-options');
 
 // Seance templates (admin only)
 use App\Http\Controllers\SeanceTemplateController;
 Route::middleware(['auth','verified','role:admin'])->group(function () {
+    Route::get('/seances/get-filter-options', [AdminSeanceController::class, 'getFilterOptions'])->name('admin.seances.get-filter-options');
     Route::delete('seance-templates/delete-group', [SeanceTemplateController::class, 'deleteGroup'])->name('seance-templates.delete-group');
     Route::resource('seance-templates', SeanceTemplateController::class);
     Route::get('seance-templates/export/show', [SeanceTemplateController::class, 'showExport'])->name('seance-templates.export.show');

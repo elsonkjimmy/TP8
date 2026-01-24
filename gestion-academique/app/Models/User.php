@@ -47,4 +47,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the modification requests made by this teacher
+     */
+    public function demandesModifications()
+    {
+        return $this->hasMany(DemandeModification::class, 'enseignant_id');
+    }
+
+    /**
+     * Get the modification requests approved/reviewed by this admin
+     */
+    public function demandesReviewed()
+    {
+        return $this->hasMany(DemandeModification::class, 'admin_id');
+    }
 }

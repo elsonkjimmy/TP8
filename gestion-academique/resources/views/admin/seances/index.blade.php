@@ -23,51 +23,78 @@
             </div>
         @endif
 
-        <!-- Filtre -->
+        <!-- Filtre simplifié -->
         <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
             <h2 class="text-lg font-bold text-gray-800 mb-4">Filtrer les séances</h2>
-            <form action="{{ route('admin.seances.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label for="filiere_id" class="block text-sm font-medium text-gray-700 mb-2">Filière</label>
-                    <select name="filiere_id" id="filiere_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
-                        <option value="">-- Toutes les filières --</option>
-                        @foreach ($filieres as $filiere)
-                            <option value="{{ $filiere->id }}" {{ request('filiere_id') == $filiere->id ? 'selected' : '' }}>
-                                {{ $filiere->nom }}
-                            </option>
-                        @endforeach
-                    </select>
+            <form action="{{ route('admin.seances.index') }}" method="GET" id="filtersForm" class="space-y-4">
+                <!-- Filtres de base -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div>
+                        <label for="filiere_id" class="block text-sm font-medium text-gray-700 mb-2">Filière</label>
+                        <select name="filiere_id" id="filiere_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            <option value="">-- Toutes --</option>
+                            @foreach ($filieres as $filiere)
+                                <option value="{{ $filiere->id }}" {{ request('filiere_id') == $filiere->id ? 'selected' : '' }}>
+                                    {{ $filiere->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="groupe_id" class="block text-sm font-medium text-gray-700 mb-2">Niveau</label>
+                        <select name="groupe_id" id="groupe_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            <option value="">-- Tous --</option>
+                            @foreach ($groupes as $groupe)
+                                <option value="{{ $groupe->id }}" {{ request('groupe_id') == $groupe->id ? 'selected' : '' }}>
+                                    {{ $groupe->nom }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="semester" class="block text-sm font-medium text-gray-700 mb-2">Semestre</label>
+                        <select name="semester" id="semester" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            <option value="">-- Tous --</option>
+                            @foreach ($semesters as $sem)
+                                <option value="{{ $sem }}" {{ request('semester') == $sem ? 'selected' : '' }}>
+                                    {{ $sem }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="enseignant_id" class="block text-sm font-medium text-gray-700 mb-2">Enseignant</label>
+                        <select name="enseignant_id" id="enseignant_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            <option value="">-- Tous --</option>
+                            @foreach ($enseignants as $enseignant)
+                                <option value="{{ $enseignant->id }}" {{ request('enseignant_id') == $enseignant->id ? 'selected' : '' }}>
+                                    {{ $enseignant->first_name }} {{ $enseignant->last_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="salle_id" class="block text-sm font-medium text-gray-700 mb-2">Salle</label>
+                        <select name="salle_id" id="salle_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
+                            <option value="">-- Toutes --</option>
+                            @foreach ($salles as $salle)
+                                <option value="{{ $salle->id }}" {{ request('salle_id') == $salle->id ? 'selected' : '' }}>
+                                    {{ $salle->numero }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
-                <div>
-                    <label for="groupe_id" class="block text-sm font-medium text-gray-700 mb-2">Niveau</label>
-                    <select name="groupe_id" id="groupe_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
-                        <option value="">-- Tous les niveaux --</option>
-                        @foreach ($groupes as $groupe)
-                            <option value="{{ $groupe->id }}" {{ request('groupe_id') == $groupe->id ? 'selected' : '' }}>
-                                {{ $groupe->nom }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div>
-                    <label for="semester" class="block text-sm font-medium text-gray-700 mb-2">Semestre</label>
-                    <select name="semester" id="semester" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-primary">
-                        <option value="">-- Tous les semestres --</option>
-                        @foreach ($semesters as $sem)
-                            <option value="{{ $sem }}" {{ request('semester') == $sem ? 'selected' : '' }}>
-                                {{ $sem }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="flex items-end gap-2">
-                    <button type="submit" class="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors">
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-accent transition-colors">
                         <i class="fas fa-search mr-2"></i>Filtrer
                     </button>
-                    <a href="{{ route('admin.seances.index') }}" class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-500 transition-colors text-center">
+                    <a href="{{ route('admin.seances.index') }}" class="bg-gray-400 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-500 transition-colors">
                         <i class="fas fa-redo mr-2"></i>Réinitialiser
                     </a>
                 </div>
@@ -164,4 +191,52 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Toggle advanced filters
+        const toggleBtn = document.getElementById('toggleAdvancedFilters');
+        const advancedFiltersContainer = document.getElementById('advancedFiltersContainer');
+        const icon = toggleBtn.querySelector('i');
+        
+// Cascade filtering on change of base filters
+        const filiereSelect = document.getElementById('filiere_id');
+        const groupeSelect = document.getElementById('groupe_id');
+        const semesterSelect = document.getElementById('semester');
+        const enseignantSelect = document.getElementById('enseignant_id');
+        const salleSelect = document.getElementById('salle_id');
+
+        async function updateFilterOptions() {
+            const filiere_id = filiereSelect.value;
+            const groupe_id = groupeSelect.value;
+            const semester = semesterSelect.value;
+
+            try {
+                const response = await fetch(`/seances/get-filter-options?filiere_id=${filiere_id}&groupe_id=${groupe_id}&semester=${semester}`);
+                    enseignantSelect.appendChild(option);
+                });
+
+                // Clear and rebuild salle options
+                salleSelect.innerHTML = '<option value="">-- Toutes --</option>';
+                data.salles.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s.id;
+                    option.textContent = `${s.numero}`;
+                    if (s.id == selectedSalle) option.selected = true;
+                    salleSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour des filtres:', error);
+            }
+        }
+
+        // Listen to changes on base filters
+        filiereSelect.addEventListener('change', updateFilterOptions);
+        groupeSelect.addEventListener('change', updateFilterOptions);
+        semesterSelect.addEventListener('change', updateFilterOptions);
+
+        // Auto-submit form when any filter changes
+        document.getElementById('filtersForm').addEventListener('change', function() {
+            this.submit();
+        });
+    </script>
 @endsection

@@ -7,6 +7,7 @@ use App\Models\Groupe;
 use App\Models\Seance;
 use App\Models\SeanceTemplate;
 use App\Models\User;
+use App\Models\Salle;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -15,9 +16,13 @@ class TimetableController extends Controller
     public function index(Request $request)
     {
         $filieres = Filiere::all();
+        $enseignants = User::where('role', 'teacher')->orderBy('first_name')->get();
+        $salles = Salle::orderBy('numero')->get();
 
         $selectedFiliere = $request->input('filiere_id');
         $selectedGroupe = $request->input('groupe_id');
+        $selectedEnseignant = $request->input('enseignant_id');
+        $selectedSalle = $request->input('salle_id');
 
         // Filtrer les groupes selon la filière sélectionnée
         if ($selectedFiliere) {
@@ -45,6 +50,14 @@ class TimetableController extends Controller
             $querySeances->where('groupe_id', $selectedGroupe);
         }
 
+        if ($selectedEnseignant) {
+            $querySeances->where('enseignant_id', $selectedEnseignant);
+        }
+
+        if ($selectedSalle) {
+            $querySeances->where('salle_id', $selectedSalle);
+        }
+
         $seances = $querySeances->get();
 
         // Récupérer les templates d'emploi du temps
@@ -56,6 +69,14 @@ class TimetableController extends Controller
 
         if ($selectedGroupe) {
             $queryTemplates->where('groupe_id', $selectedGroupe);
+        }
+
+        if ($selectedEnseignant) {
+            $queryTemplates->where('enseignant_id', $selectedEnseignant);
+        }
+
+        if ($selectedSalle) {
+            $queryTemplates->where('salle_id', $selectedSalle);
         }
 
         $templates = $queryTemplates->get();
@@ -107,8 +128,12 @@ class TimetableController extends Controller
         return view('timetables.index', compact(
             'filieres',
             'groupes',
+            'enseignants',
+            'salles',
             'selectedFiliere',
             'selectedGroupe',
+            'selectedEnseignant',
+            'selectedSalle',
             'timetableGrid',
             'timeSlots',
             'monday',

@@ -89,6 +89,26 @@
         </table>
     </div>
 
+    <!-- Card demandes modification -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-lg p-6 border-l-4 border-purple-600 hover:shadow-xl transition">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h2 class="text-lg font-bold text-purple-900 mb-2">Demandes de Modification</h2>
+                    <p class="text-purple-700 text-sm mb-4">Demander des modifications de séances</p>
+                    <a href="{{ route('teacher.demandes.index') }}" class="inline-block bg-purple-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-700 transition text-sm mb-2">
+                        Voir mes demandes
+                    </a>
+                    <br>
+                    <a href="{{ route('teacher.demandes.create') }}" class="inline-block bg-purple-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-purple-600 transition text-sm">
+                        + Nouvelle demande
+                    </a>
+                </div>
+                <div class="text-4xl">💬</div>
+            </div>
+        </div>
+    </div>
+
     <div class="mt-8 grid grid-cols-2 gap-4">
         <div class="bg-white rounded-xl shadow-lg p-4">
             <h3 class="font-bold mb-3">Mes UE</h3>

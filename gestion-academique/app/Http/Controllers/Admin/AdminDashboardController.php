@@ -10,6 +10,7 @@ use App\Models\Salle;
 use App\Models\Seance;
 use App\Models\Ue;
 use App\Models\User;
+use App\Services\ClasseCompleteService;
 use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
@@ -51,6 +52,17 @@ class AdminDashboardController extends Controller
             $overallUeProgress = round($totalProgress / $ues->count(), 2);
         }
 
+        // Complete classes alerts
+        $anneeActuelle = date('Y');
+        $completeClasses = [];
+        try {
+            $completeClasses = ClasseCompleteService::getCompleteClasses($anneeActuelle);
+        } catch (\Exception $e) {
+            // Silently fail if there's an issue with the service
+            \Log::warning('ClasseCompleteService error: ' . $e->getMessage());
+            $completeClasses = [];
+        }
+
 
         return view('admin.dashboard', compact(
             'totalUsers',
@@ -66,7 +78,8 @@ class AdminDashboardController extends Controller
             'pendingSeances',
             'cancelledSeances',
             'recentNotifications',
-            'overallUeProgress'
+            'overallUeProgress',
+            'completeClasses'
         ));
     }
 }

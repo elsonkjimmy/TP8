@@ -6,6 +6,28 @@
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold text-primary mb-6">Tableau de bord Administrateur</h1>
 
+        <!-- ALERTS SECTION -->
+        @if(count($completeClasses) > 0)
+            <div class="mb-8 p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                <div class="flex items-start gap-4">
+                    <div class="text-3xl">⚠️</div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-yellow-900 mb-2">Classes Complètes</h3>
+                        <p class="text-sm text-yellow-800 mb-3">
+                            Les classes suivantes ont tous leurs cours programmés pour ce semestre :
+                        </p>
+                        <div class="space-y-1">
+                            @foreach($completeClasses as $complete)
+                                <div class="text-sm text-yellow-900 font-medium">
+                                    • {{ $complete['groupe']->nom }} - {{ $complete['semestre'] }} ({{ $complete['annee'] }}/{{ $complete['annee'] + 1 }})
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Statistics Table (Collapsible) -->
         <div class="bg-white rounded-xl shadow-lg mb-8" x-data="{ open: false }">
             <div class="p-6 cursor-pointer hover:bg-gray-50 transition" @click="open = !open">
@@ -173,7 +195,7 @@
         </div>
 
         <!-- Action Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <!-- Timetables Card -->
             <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-indigo-500 hover:shadow-xl transition-shadow cursor-pointer">
                 <a href="{{ route('seance-templates.index') }}" class="flex items-center justify-between h-full">
@@ -193,6 +215,61 @@
                         <p class="text-sm text-green-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Consulter les rapports</p>
                     </div>
                     <i class="fas fa-file-alt text-4xl text-green-500 opacity-50"></i>
+                </a>
+            </div>
+
+            <!-- Demandes de Modification Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('admin.demandes-modifications.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Demandes de Modification</p>
+                        <p class="text-sm text-orange-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les demandes</p>
+                    </div>
+                    <i class="fas fa-edit text-4xl text-orange-500 opacity-50"></i>
+                </a>
+            </div>
+
+            <!-- Gestion des Utilisateurs Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('admin.users.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Gestion des Utilisateurs</p>
+                        <p class="text-sm text-blue-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les utilisateurs</p>
+                    </div>
+                    <i class="fas fa-user-cog text-4xl text-blue-500 opacity-50"></i>
+                </a>
+            </div>
+
+            <!-- Gestion des Séances Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-purple-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('admin.seances.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Gestion des Séances</p>
+                        <p class="text-sm text-purple-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les séances</p>
+                    </div>
+                    <i class="fas fa-clock text-4xl text-purple-500 opacity-50"></i>
+                </a>
+            </div>
+
+            <!-- Gestion des Effectifs Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-cyan-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('admin.groupe-effectifs.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Gestion des Effectifs</p>
+                        <p class="text-sm text-cyan-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les effectifs</p>
+                    </div>
+                    <i class="fas fa-chart-bar text-4xl text-cyan-500 opacity-50"></i>
+                </a>
+            </div>
+
+            <!-- Gestion des Salles Card -->
+            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-pink-500 hover:shadow-xl transition-shadow cursor-pointer">
+                <a href="{{ route('admin.salles.index') }}" class="flex items-center justify-between h-full">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Gestion des Salles</p>
+                        <p class="text-sm text-pink-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les salles</p>
+                    </div>
+                    <i class="fas fa-door-open text-4xl text-pink-500 opacity-50"></i>
                 </a>
             </div>
         </div>

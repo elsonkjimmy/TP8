@@ -27,4 +27,20 @@ class Filiere extends Model
     {
         return $this->belongsTo(User::class, 'enseignant_responsable_id');
     }
+
+    /**
+     * Get all UEs for this filiere.
+     */
+    public function ues()
+    {
+        return $this->hasMany(Ue::class);
+    }
+
+    /**
+     * Get all groupes for this filiere.
+     */
+    public function groupes()
+    {
+        return $this->hasMany(Groupe::class);
+    }
 }

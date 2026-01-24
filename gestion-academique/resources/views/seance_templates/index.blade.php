@@ -44,33 +44,65 @@
 
     <!-- Filtres -->
     <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-8">
-        <form action="{{ route('seance-templates.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-end">
-            <div>
-                <label for="filiere_id" class="block text-gray-700 text-sm font-bold mb-2">Filière</label>
-                <select id="filiere_id" name="filiere_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-                    <option value="">Toutes les filières</option>
-                    @foreach ($filieres as $filiere)
-                        <option value="{{ $filiere->id }}" {{ $selectedFiliere == $filiere->id ? 'selected' : '' }}>
-                            {{ $filiere->nom }}
-                        </option>
-                    @endforeach
-                </select>
+        <form action="{{ route('seance-templates.index') }}" method="GET" class="space-y-4">
+            <!-- Filtres principaux -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-end">
+                <div>
+                    <label for="filiere_id" class="block text-gray-700 text-sm font-bold mb-2">Filière</label>
+                    <select id="filiere_id" name="filiere_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
+                        <option value="">Toutes les filières</option>
+                        @foreach ($filieres as $filiere)
+                            <option value="{{ $filiere->id }}" {{ $selectedFiliere == $filiere->id ? 'selected' : '' }}>
+                                {{ $filiere->nom }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="groupe_id" class="block text-gray-700 text-sm font-bold mb-2">Niveau</label>
+                    <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
+                        <option value="">Tous les niveaux</option>
+                        @foreach ($groupes as $groupe)
+                            <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ $selectedGroupe == $groupe->id ? 'selected' : '' }}>
+                                {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex justify-start gap-2">
+                    <button type="submit" class="flex-1 sm:flex-none bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors text-sm">
+                        <i class="fas fa-filter mr-2"></i>Filtrer
+                    </button>
+                    <button type="button" id="toggleAdvancedFilters" class="flex-1 sm:flex-none bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors text-sm">
+                        <i class="fas fa-plus mr-2"></i>Plus de filtres
+                    </button>
+                </div>
             </div>
-            <div>
-                <label for="groupe_id" class="block text-gray-700 text-sm font-bold mb-2">Niveau</label>
-                <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
-                    <option value="">Tous les niveaux</option>
-                    @foreach ($groupes as $groupe)
-                        <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ $selectedGroupe == $groupe->id ? 'selected' : '' }}>
-                            {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="flex justify-start">
-                <button type="submit" class="w-full sm:w-auto bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-accent transition-colors text-sm">
-                    <i class="fas fa-filter mr-2"></i>Filtrer
-                </button>
+
+            <!-- Filtres avancés (masqués par défaut) -->
+            <div id="advancedFiltersSection" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4 border-t">
+                <div>
+                    <label for="enseignant_id" class="block text-gray-700 text-sm font-bold mb-2">Enseignant</label>
+                    <select id="enseignant_id" name="enseignant_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
+                        <option value="">Tous les enseignants</option>
+                        @foreach ($enseignants as $enseignant)
+                            <option value="{{ $enseignant->id }}" {{ $selectedEnseignant == $enseignant->id ? 'selected' : '' }}>
+                                {{ $enseignant->first_name }} {{ $enseignant->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label for="salle_id" class="block text-gray-700 text-sm font-bold mb-2">Salle</label>
+                    <select id="salle_id" name="salle_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm">
+                        <option value="">Toutes les salles</option>
+                        @foreach ($salles as $salle)
+                            <option value="{{ $salle->id }}" {{ $selectedSalle == $salle->id ? 'selected' : '' }}>
+                                {{ $salle->numero }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </form>
     </div>
@@ -188,12 +220,42 @@
 </div>
 
 <script>
+    // Toggle filtres avancés
+    document.getElementById('toggleAdvancedFilters').addEventListener('click', function(e) {
+        e.preventDefault();
+        const advancedSection = document.getElementById('advancedFiltersSection');
+        advancedSection.classList.toggle('hidden');
+        
+        // Changer le texte du bouton
+        const icon = this.querySelector('i');
+        if (advancedSection.classList.contains('hidden')) {
+            icon.className = 'fas fa-plus mr-2';
+            this.innerHTML = '<i class="fas fa-plus mr-2"></i>Plus de filtres';
+        } else {
+            icon.className = 'fas fa-minus mr-2';
+            this.innerHTML = '<i class="fas fa-minus mr-2"></i>Moins de filtres';
+        }
+    });
+
+    // Afficher les filtres avancés s'il y a une sélection
+    document.addEventListener('DOMContentLoaded', function() {
+        const enseignantSelect = document.getElementById('enseignant_id');
+        const salleSelect = document.getElementById('salle_id');
+        const advancedSection = document.getElementById('advancedFiltersSection');
+        const toggleBtn = document.getElementById('toggleAdvancedFilters');
+
+        if (enseignantSelect.value !== '' || salleSelect.value !== '') {
+            advancedSection.classList.remove('hidden');
+            toggleBtn.innerHTML = '<i class="fas fa-minus mr-2"></i>Moins de filtres';
+        }
+    });
+
+    // Filtrage en cascade : filière -> groupe
     document.getElementById('filiere_id').addEventListener('change', function() {
         const selectedFiliereId = this.value;
         const groupeSelect = document.getElementById('groupe_id');
         const groupeOptions = groupeSelect.querySelectorAll('option[data-filiere-id]');
 
-        // Afficher/masquer les options de groupe selon la filière sélectionnée
         groupeOptions.forEach(option => {
             if (selectedFiliereId === '' || option.dataset.filiereId === selectedFiliereId) {
                 option.style.display = 'block';
@@ -202,7 +264,6 @@
             }
         });
 
-        // Réinitialiser la sélection du groupe
         groupeSelect.value = '';
     });
 

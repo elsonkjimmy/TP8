@@ -26,4 +26,25 @@ class Groupe extends Model
     {
         return $this->belongsTo(Filiere::class);
     }
+
+    /**
+     * Get the effectifs for this groupe.
+     */
+    public function effectifs()
+    {
+        return $this->hasMany(GroupeEffectif::class);
+    }
+
+    /**
+     * Get the effectif for a specific year and semester.
+     */
+    public function getEffectif($annee, $semestre)
+    {
+        $effectif = $this->effectifs()
+            ->where('annee', $annee)
+            ->where('semestre', $semestre)
+            ->first();
+        
+        return $effectif ? $effectif->effectif : null;
+    }
 }

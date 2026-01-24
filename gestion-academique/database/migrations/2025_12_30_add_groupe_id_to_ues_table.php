@@ -22,7 +22,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('ues', function (Blueprint $table) {
-            $table->dropForeignIdFor('Groupe');
+            $table->dropForeignKeyIfExists(['groupe_id']);
+            $table->dropColumn('groupe_id');
         });
     }
 };

@@ -35,13 +35,25 @@ class AdminSeanceController extends Controller
         if (request('semester')) {
             $query->where('semester', request('semester'));
         }
+        
+        // Advanced filters
+        if (request('enseignant_id')) {
+            $query->where('enseignant_id', request('enseignant_id'));
+        }
+        if (request('salle_id')) {
+            $query->where('salle_id', request('salle_id'));
+        }
 
         $seances = $query->get();
         $filieres = \App\Models\Filiere::all();
         $groupes = \App\Models\Groupe::all();
         $semesters = ['S1', 'S2'];
+        
+        // Get all teachers and rooms for advanced filters
+        $enseignants = User::where('role', 'teacher')->get();
+        $salles = Salle::all();
 
-        return view('admin.seances.index', compact('seances', 'filieres', 'groupes', 'semesters'));
+        return view('admin.seances.index', compact('seances', 'filieres', 'groupes', 'semesters', 'enseignants', 'salles'));
     }
 
     /**
@@ -81,17 +93,25 @@ class AdminSeanceController extends Controller
             $validatedData['group_divisions'] = null;
         }
 
+        // Check for conflicts
         $conflicts = $this->checkConflicts($validatedData);
-
         if (!empty($conflicts)) {
             return redirect()->back()->withErrors($conflicts)->withInput();
         }
 
+        // Check effectif/capacité and get suggestions
+        $effectifCheck = $this->checkEffectifAndCapacity($validatedData);
+        if ($effectifCheck['hasWarning']) {
+            // Avertissement: salle insuffisante, mais on peut continuer
+            return redirect()->back()
+                ->with('warning', $effectifCheck['message'])
+                ->with('suggestions', $effectifCheck['suggestions'])
+                ->withInput();
+        }
+
         try {
             $seance = Seance::create($validatedData);
-
             $this->sendSeanceNotification($seance, 'created');
-
             return redirect()->route('admin.seances.index')->with('success', 'Séance créée avec succès.');
         } catch (\Exception $e) {
             \Log::error('Erreur lors de la création de séance', [
@@ -259,5 +279,99 @@ class AdminSeanceController extends Controller
                 'contenu' => $message,
             ]);
         }
+    }
+
+    /**
+     * Check if salle capacity matches groupe effectif
+     * Returns array with hasWarning, message, and alternative salles
+     */
+    private function checkEffectifAndCapacity($validatedData)
+    {
+        $groupe = Groupe::find($validatedData['groupe_id']);
+        $salle = Salle::find($validatedData['salle_id']);
+        $semester = $validatedData['semester'] ?? 'S1';
+        
+        // Get current year
+        $annee = date('Y');
+        
+        // Get effectif for this groupe
+        $effectif = $groupe->getEffectif($annee, $semester);
+        
+        // If no effectif defined, assume it's OK
+        if (!$effectif) {
+            return ['hasWarning' => false];
+        }
+        
+        // Check if salle capacity is sufficient
+        if ($salle->capacite >= $effectif) {
+            return ['hasWarning' => false];
+        }
+        
+        // Salle insuffisante: chercher des alternatives
+        $suggestions = Salle::where('capacite', '>=', $effectif)
+            ->orderBy('capacite')
+            ->limit(3)
+            ->get()
+            ->map(fn($s) => [
+                'id' => $s->id,
+                'numero' => $s->numero,
+                'capacite' => $s->capacite,
+            ])
+            ->toArray();
+        
+        return [
+            'hasWarning' => true,
+            'message' => "⚠️ Attention! Salle {$salle->numero} (capacité {$salle->capacite}) insuffisante pour {$effectif} étudiants.",
+            'suggestions' => $suggestions,
+        ];
+    }
+
+    /**
+     * Get filter options (cascade filtering)
+     * Returns available enseignants and salles for the selected filiere/groupe
+     */
+    public function getFilterOptions(Request $request)
+    {
+        $query = Seance::query();
+
+        // Apply base filters
+        if ($request->has('filiere_id') && $request->filiere_id) {
+            $query->whereHas('groupe', function ($q) {
+                $q->where('filiere_id', $request->filiere_id);
+            });
+        }
+        if ($request->has('groupe_id') && $request->groupe_id) {
+            $query->where('groupe_id', $request->groupe_id);
+        }
+        if ($request->has('semester') && $request->semester) {
+            $query->where('semester', $request->semester);
+        }
+
+        // Get unique enseignants and salles for these seances
+        $enseignants = $query->distinct('enseignant_id')
+            ->pluck('enseignant_id')
+            ->filter()
+            ->map(fn($id) => User::find($id))
+            ->filter()
+            ->values();
+
+        $salles = $query->distinct('salle_id')
+            ->pluck('salle_id')
+            ->filter()
+            ->map(fn($id) => Salle::find($id))
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'enseignants' => $enseignants->map(fn($u) => [
+                'id' => $u->id,
+                'name' => $u->first_name . ' ' . $u->last_name,
+            ]),
+            'salles' => $salles->map(fn($s) => [
+                'id' => $s->id,
+                'numero' => $s->numero,
+                'capacite' => $s->capacite,
+            ]),
+        ]);
     }
 }
