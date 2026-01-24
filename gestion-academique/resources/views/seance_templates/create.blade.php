@@ -74,6 +74,19 @@
             </select>
         </div>
         <div>
+            <label>Divisions concernées</label>
+            <div class="flex gap-4 mt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="group_divisions[]" value="G1" class="w-4 h-4">
+                    <span>Groupe 1 (G1)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="group_divisions[]" value="G2" class="w-4 h-4">
+                    <span>Groupe 2 (G2)</span>
+                </label>
+            </div>
+        </div>
+        <div>
             <label>Heure début</label>
             <input type="time" name="start_time" required class="w-full border p-2">
         </div>

@@ -106,6 +106,9 @@
                                         <p class="text-xs">{{ $template->ue->code ?? 'N/A' }}</p>
                                         <p class="text-xs mt-1">Salle: {{ $template->salle->numero ?? 'N/A' }}</p>
                                         <p class="text-xs">Niveau: {{ $template->groupe->nom ?? 'N/A' }}</p>
+                                        @if($template->group_divisions)
+                                            <p class="text-xs text-blue-700 font-semibold">Division: {{ $template->group_divisions }}</p>
+                                        @endif
                                         <p class="text-xs">{{ $template->enseignant->first_name ?? '' }} {{ $template->enseignant->last_name ?? '' }}</p>
                                         <div class="mt-2 flex gap-1">
                                             <a href="{{ route('seance-templates.edit', $template) }}" class="text-blue-600 text-xs hover:underline">Edit</a>
@@ -158,6 +161,9 @@
                                                 <p class="text-xs">{{ $template->ue->code ?? 'N/A' }}</p>
                                                 <p class="text-xs mt-1">Salle: {{ $template->salle->numero ?? 'N/A' }}</p>
                                                 <p class="text-xs">Groupe: {{ $template->groupe->nom ?? 'N/A' }}</p>
+                                                @if($template->group_divisions)
+                                                    <p class="text-xs text-blue-700 font-semibold">Division: {{ $template->group_divisions }}</p>
+                                                @endif
                                                 <p class="text-xs">{{ $template->enseignant->first_name ?? '' }} {{ $template->enseignant->last_name ?? '' }}</p>
                                                 <div class="mt-2 flex gap-2">
                                                     <a href="{{ route('seance-templates.edit', $template) }}" class="text-blue-600 text-xs hover:underline">Edit</a>

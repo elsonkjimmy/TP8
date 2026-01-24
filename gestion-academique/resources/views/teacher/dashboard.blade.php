@@ -44,6 +44,9 @@
                                         <p class="text-xs">{{ $seance->ue->code ?? 'N/A' }}</p>
                                         <p class="text-xs mt-1">Salle: {{ $seance->salle->numero ?? 'N/A' }}</p>
                                         <p class="text-xs">Groupe: {{ $seance->groupe->nom ?? 'N/A' }}</p>
+                                        @if($seance->group_divisions)
+                                            <p class="text-xs text-blue-700 font-semibold">Division: {{ $seance->group_divisions }}</p>
+                                        @endif
                                         <p class="text-xs">Statut: 
                                             <span class="px-2 py-0.5 rounded text-white text-[10px] @if($seance->status=='completed') bg-green-600 @elseif($seance->status=='cancelled') bg-red-600 @elseif($seance->status=='no_fait') bg-red-700 @else bg-yellow-600 @endif">
                                                 {{ ucfirst(str_replace('_', ' ', $seance->status)) }}

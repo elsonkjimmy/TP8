@@ -101,6 +101,9 @@
                                 Niveau
                             </th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                Division
+                            </th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Enseignant
                             </th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -131,6 +134,9 @@
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <p class="text-gray-900 whitespace-no-wrap">{{ $seance->groupe->nom ?? 'N/A' }}</p>
+                                </td>
+                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                    <p class="text-gray-900 whitespace-no-wrap">{{ $seance->group_divisions ?? '-' }}</p>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <p class="text-gray-900 whitespace-no-wrap">

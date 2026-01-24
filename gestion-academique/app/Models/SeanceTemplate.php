@@ -12,6 +12,7 @@ class SeanceTemplate extends Model
     protected $fillable = [
         'filiere_id',
         'groupe_id',
+        'group_divisions',
         'ue_id',
         'salle_id',
         'enseignant_id',

@@ -69,6 +69,9 @@
                                             <p class="text-xs">{{ $seance->ue->code ?? 'N/A' }}</p>
                                             <p class="text-xs mt-1">Salle: {{ $seance->salle->numero ?? 'N/A' }}</p>
                                             <p class="text-xs">Niveau: {{ $seance->groupe->nom ?? 'N/A' }}</p>
+                                            @if($seance->group_divisions)
+                                                <p class="text-xs text-blue-700 font-semibold">Groupe: {{ $seance->group_divisions }}</p>
+                                            @endif
                                             <p class="text-xs">Enseignant: {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}</p>
                                         </div>
                                     @empty
@@ -115,6 +118,9 @@
                                                     <p class="text-xs">{{ $seance->ue->code ?? 'N/A' }}</p>
                                                     <p class="text-xs mt-1">Salle: {{ $seance->salle->numero ?? 'N/A' }}</p>
                                                     <p class="text-xs">Niveau: {{ $seance->groupe->nom ?? 'N/A' }}</p>
+                                                    @if($seance->group_divisions)
+                                                        <p class="text-xs text-blue-700 font-semibold">Groupe: {{ $seance->group_divisions }}</p>
+                                                    @endif
                                                     <p class="text-xs">Enseignant: {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}</p>
                                                 </div>
                                             @endforeach

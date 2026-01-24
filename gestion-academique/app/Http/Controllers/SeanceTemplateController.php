@@ -97,6 +97,23 @@ class SeanceTemplateController extends Controller
 
     public function store(Request $request)
     {
+        // Trim time inputs
+        $startTime = trim($request->input('start_time') ?? '');
+        $endTime = trim($request->input('end_time') ?? '');
+        
+        // Validate time format (H:mm or HH:mm)
+        if (!preg_match('/^[0-2]?[0-9]:[0-5][0-9]$/', $startTime) || !preg_match('/^[0-2]?[0-9]:[0-5][0-9]$/', $endTime)) {
+            return back()->withErrors([
+                'start_time' => 'Le format de l\'heure est invalide. Utilisez HH:mm',
+                'end_time' => 'Le format de l\'heure est invalide. Utilisez HH:mm'
+            ])->withInput();
+        }
+
+        // Validate that end_time > start_time
+        if ($endTime <= $startTime) {
+            return back()->withErrors(['end_time' => 'L\'heure fin doit être après l\'heure début.'])->withInput();
+        }
+
         $data = $request->validate([
             'filiere_id' => 'nullable|exists:filieres,id',
             'groupe_id' => 'nullable|exists:groupes,id',
@@ -105,10 +122,21 @@ class SeanceTemplateController extends Controller
             'enseignant_id' => 'nullable|exists:users,id',
             'day_of_week' => 'required|integer|min:1|max:6',
             'semester' => 'nullable|string',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
             'comment' => 'nullable|string',
+            'group_divisions' => 'nullable|array',
+            'group_divisions.*' => 'in:G1,G2',
         ]);
+        
+        // Add time values
+        $data['start_time'] = $startTime;
+        $data['end_time'] = $endTime;
+
+        // Convert array of checkboxes to comma-separated string
+        if (!empty($data['group_divisions'])) {
+            $data['group_divisions'] = implode(',', $data['group_divisions']);
+        } else {
+            $data['group_divisions'] = null;
+        }
 
         // Vérifier chevauchement
         $this->checkForOverlap(
@@ -137,6 +165,35 @@ class SeanceTemplateController extends Controller
 
     public function update(Request $request, SeanceTemplate $seanceTemplate)
     {
+        // Trim time inputs
+        $startTime = trim($request->input('start_time') ?? '');
+        $endTime = trim($request->input('end_time') ?? '');
+        
+        // If times are different from original, validate them; otherwise keep original values
+        $originalStartTime = is_object($seanceTemplate->start_time) ? $seanceTemplate->start_time->format('H:i') : $seanceTemplate->start_time;
+        $originalEndTime = is_object($seanceTemplate->end_time) ? $seanceTemplate->end_time->format('H:i') : $seanceTemplate->end_time;
+        
+        $timesModified = ($startTime !== $originalStartTime) || ($endTime !== $originalEndTime);
+        
+        if ($timesModified) {
+            // Validate time format only if times were changed
+            if (!preg_match('/^[0-2]?[0-9]:[0-5][0-9]$/', $startTime) || !preg_match('/^[0-2]?[0-9]:[0-5][0-9]$/', $endTime)) {
+                return back()->withErrors([
+                    'start_time' => 'Le format de l\'heure est invalide. Utilisez HH:mm',
+                    'end_time' => 'Le format de l\'heure est invalide. Utilisez HH:mm'
+                ])->withInput();
+            }
+
+            // Validate that end_time > start_time
+            if ($endTime <= $startTime) {
+                return back()->withErrors(['end_time' => 'L\'heure fin doit être après l\'heure début.'])->withInput();
+            }
+        } else {
+            // Use original values if times weren't modified
+            $startTime = $originalStartTime;
+            $endTime = $originalEndTime;
+        }
+
         $data = $request->validate([
             'filiere_id' => 'nullable|exists:filieres,id',
             'groupe_id' => 'nullable|exists:groupes,id',
@@ -145,24 +202,41 @@ class SeanceTemplateController extends Controller
             'enseignant_id' => 'nullable|exists:users,id',
             'day_of_week' => 'required|integer|min:1|max:6',
             'semester' => 'nullable|string',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
             'comment' => 'nullable|string',
+            'group_divisions' => 'nullable|array',
+            'group_divisions.*' => 'in:G1,G2',
         ]);
+        
+        // Add time values
+        $data['start_time'] = $startTime;
+        $data['end_time'] = $endTime;
 
-        // Vérifier chevauchement (sauf le template courant)
-        $this->checkForOverlap(
-            $data['groupe_id'] ?? null,
-            $data['filiere_id'] ?? null,
-            $data['day_of_week'],
-            $data['start_time'],
-            $data['end_time'],
-            $seanceTemplate->id
-        );
+        // Convert array of checkboxes to comma-separated string
+        if (!empty($data['group_divisions'])) {
+            $data['group_divisions'] = implode(',', $data['group_divisions']);
+        } else {
+            $data['group_divisions'] = null;
+        }
 
         $seanceTemplate->update($data);
 
-        return redirect()->route('seance-templates.index')->with('success', 'Template mis à jour.');
+        // Sync group_divisions to all seances with same template match (day, time, groupe, ue, enseignant)
+        // Find seances that match this template's criteria and update their group_divisions
+        $seances = \App\Models\Seance::where('groupe_id', $seanceTemplate->groupe_id)
+            ->where('enseignant_id', $seanceTemplate->enseignant_id)
+            ->where('ue_id', $seanceTemplate->ue_id)
+            ->whereRaw("TIME(heure_debut) = ?", [$seanceTemplate->start_time])
+            ->get();
+        
+        foreach ($seances as $seance) {
+            // Check if seance is on the correct day of week
+            $seanceDayOfWeek = Carbon::parse($seance->jour)->dayOfWeekIso;
+            if ($seanceDayOfWeek == $seanceTemplate->day_of_week) {
+                $seance->update(['group_divisions' => $data['group_divisions']]);
+            }
+        }
+
+        return redirect()->route('seance-templates.index')->with('success', 'Template modifié.');
     }
 
     /**
@@ -244,6 +318,7 @@ class SeanceTemplateController extends Controller
             'UE Nom',
             'Filière',
             'Groupe',
+            'Division',
             'Salle',
             'Enseignant',
             'Commentaire'
@@ -261,6 +336,7 @@ class SeanceTemplateController extends Controller
                 $t->ue->nom,
                 $t->filiere->nom ?? '',
                 $t->groupe->nom ?? '',
+                $t->group_divisions ?? '',
                 $t->salle->numero ?? '',
                 ($t->enseignant->first_name ?? '') . ' ' . ($t->enseignant->last_name ?? ''),
                 $t->comment ?? ''
@@ -392,6 +468,20 @@ class SeanceTemplateController extends Controller
                         }
                     }
 
+                    // Traiter les divisions (Division CSV field)
+                    $divisions = null;
+                    if (!empty($record['Division'])) {
+                        $divisionStr = trim($record['Division']);
+                        // Valider que c'est G1, G2, ou G1,G2
+                        $validDivisions = ['G1', 'G2', 'G1,G2', 'G2,G1'];
+                        if (!in_array($divisionStr, $validDivisions)) {
+                            $errors[] = "Ligne " . ($index + 2) . ": division invalide '{$divisionStr}' (doit être G1, G2 ou G1,G2)";
+                            $skipped++;
+                            continue;
+                        }
+                        $divisions = $divisionStr;
+                    }
+
                     // Vérifier les chevauchements avec d'autres templates du même groupe
                     $conflicts = SeanceTemplate::where('groupe_id', $groupeId)
                         ->where('day_of_week', $dayOfWeek)
@@ -423,6 +513,7 @@ class SeanceTemplateController extends Controller
                             'enseignant_id' => $enseignant?->id,
                             'comment' => $record['Commentaire'] ?? null,
                             'semester' => $semester,
+                            'group_divisions' => $divisions,
                         ]
                     );
 

@@ -17,17 +17,18 @@
         <h2 class="text-lg font-bold mb-4">Format du fichier CSV</h2>
         <p class="mb-4 text-gray-700">Le fichier doit contenir les colonnes suivantes (dans cet ordre exact):</p>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
-            Jour, Heure Début, Heure Fin, Semestre, UE Code, UE Nom, Filière, Niveau, Salle, Enseignant, Commentaire
+            Jour, Heure Début, Heure Fin, Semestre, UE Code, UE Nom, Filière, Niveau, Division, Salle, Enseignant, Commentaire
         </div>
         <p class="mt-4 text-gray-700"><strong>Exemple:</strong></p>
         <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm">
-            Lundi,08:00,11:00,INFO101,Informatique,Génie Informatique,Niveau 1,Salle 101,Dupont Martin,
+            Lundi,08:00,11:00,S1,INFO101,Informatique,Génie Informatique,Niveau 1,G1,Salle 101,Dupont Martin,
         </div>
         <p class="mt-4 text-gray-700"><strong>Notes:</strong></p>
         <ul class="list-disc list-inside text-gray-700">
             <li>Jour: Lundi, Mardi, Mercredi, Jeudi, Vendredi, Samedi</li>
             <li>Heures: Format HH:MM (24h)</li>
             <li>UE Code: Doit correspondre à un code UE existant</li>
+            <li>Division: G1, G2, ou G1,G2 (optionnel, défaut=G1)</li>
             <li>Filière, Niveau, Salle, Enseignant: Optionnels (laissez vide si non applicable)</li>
             <li>Enseignant: Format "Prénom Nom"</li>
         </ul>

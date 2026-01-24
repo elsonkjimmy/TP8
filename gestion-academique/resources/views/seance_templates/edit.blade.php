@@ -75,12 +75,33 @@
             </select>
         </div>
         <div>
-            <label>Heure début</label>
-            <input type="time" name="start_time" value="{{ $seanceTemplate->start_time }}" required class="w-full border p-2">
+            <label>Divisions concernées</label>
+            <div class="flex gap-4 mt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="group_divisions[]" value="G1" {{ (str_contains($seanceTemplate->group_divisions ?? '', 'G1')) ? 'checked' : '' }} class="w-4 h-4">
+                    <span>Groupe 1 (G1)</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="group_divisions[]" value="G2" {{ (str_contains($seanceTemplate->group_divisions ?? '', 'G2')) ? 'checked' : '' }} class="w-4 h-4">
+                    <span>Groupe 2 (G2)</span>
+                </label>
+            </div>
+        </div>
+        <div>
+            <div class="flex items-center justify-between mb-2">
+                <label>Heure début</label>
+                <label class="flex items-center gap-2 cursor-pointer text-sm">
+                    <input type="checkbox" id="unlock_time" class="w-4 h-4">
+                    <span>Déverrouiller édition</span>
+                </label>
+            </div>
+            <input type="time" id="start_time" name="start_time_display" value="{{ is_object($seanceTemplate->start_time) ? $seanceTemplate->start_time->format('H:i') : $seanceTemplate->start_time }}" disabled class="w-full border p-2 bg-gray-100 cursor-not-allowed">
+            <input type="hidden" id="start_time_hidden" name="start_time" value="{{ is_object($seanceTemplate->start_time) ? $seanceTemplate->start_time->format('H:i') : $seanceTemplate->start_time }}">
         </div>
         <div>
             <label>Heure fin</label>
-            <input type="time" name="end_time" value="{{ $seanceTemplate->end_time }}" required class="w-full border p-2">
+            <input type="time" id="end_time" name="end_time_display" value="{{ is_object($seanceTemplate->end_time) ? $seanceTemplate->end_time->format('H:i') : $seanceTemplate->end_time }}" disabled class="w-full border p-2 bg-gray-100 cursor-not-allowed">
+            <input type="hidden" id="end_time_hidden" name="end_time" value="{{ is_object($seanceTemplate->end_time) ? $seanceTemplate->end_time->format('H:i') : $seanceTemplate->end_time }}">
         </div>
         <div>
             <label>Commentaire</label>
@@ -93,4 +114,42 @@
         </div>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const unlockCheckbox = document.getElementById('unlock_time');
+        const startTimeDisplay = document.getElementById('start_time');
+        const endTimeDisplay = document.getElementById('end_time');
+        const startTimeHidden = document.getElementById('start_time_hidden');
+        const endTimeHidden = document.getElementById('end_time_hidden');
+
+        unlockCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                // Enable editing - copy value to hidden field when changed
+                startTimeDisplay.disabled = false;
+                endTimeDisplay.disabled = false;
+                startTimeDisplay.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                endTimeDisplay.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                
+                // Update hidden fields as user types
+                startTimeDisplay.addEventListener('input', function() {
+                    startTimeHidden.value = this.value;
+                });
+                endTimeDisplay.addEventListener('input', function() {
+                    endTimeHidden.value = this.value;
+                });
+            } else {
+                // Disable editing - restore original values
+                startTimeDisplay.disabled = true;
+                endTimeDisplay.disabled = true;
+                startTimeDisplay.classList.add('bg-gray-100', 'cursor-not-allowed');
+                endTimeDisplay.classList.add('bg-gray-100', 'cursor-not-allowed');
+                
+                // Reset hidden fields to original values
+                startTimeHidden.value = startTimeDisplay.value;
+                endTimeHidden.value = endTimeDisplay.value;
+            }
+        });
+    });
+</script>
 @endsection

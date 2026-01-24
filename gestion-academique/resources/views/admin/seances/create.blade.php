@@ -130,6 +130,24 @@
                             <p class="text-red-500 text-xs italic">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <!-- Divisions de Groupe -->
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Divisions concernées</label>
+                        <div class="flex items-center gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="group_divisions[]" value="G1" {{ (is_array(old('group_divisions')) && in_array('G1', old('group_divisions'))) ? 'checked' : '' }} class="w-4 h-4">
+                                <span class="text-gray-700">Groupe 1 (G1)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="group_divisions[]" value="G2" {{ (is_array(old('group_divisions')) && in_array('G2', old('group_divisions'))) ? 'checked' : '' }} class="w-4 h-4">
+                                <span class="text-gray-700">Groupe 2 (G2)</span>
+                            </label>
+                        </div>
+                        @error('group_divisions')
+                            <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end mt-6">

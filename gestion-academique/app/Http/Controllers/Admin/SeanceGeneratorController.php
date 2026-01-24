@@ -350,6 +350,7 @@ class SeanceGeneratorController extends Controller
                         'enseignant_id' => $template->enseignant_id,
                         'status' => 'planned',
                         'semester' => $semester,
+                        'group_divisions' => $template->group_divisions,
                     ]);
 
                     // Copy template delegates to seance if any

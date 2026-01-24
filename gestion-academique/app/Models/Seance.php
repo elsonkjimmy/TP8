@@ -21,6 +21,7 @@ class Seance extends Model
         'heure_fin',
         'salle_id',
         'groupe_id',
+        'group_divisions',
         'enseignant_id',
         'status',
         'semester',

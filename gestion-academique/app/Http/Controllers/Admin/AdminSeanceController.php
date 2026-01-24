@@ -70,7 +70,16 @@ class AdminSeanceController extends Controller
             'groupe_id' => ['required', 'exists:groupes,id'],
             'enseignant_id' => ['required', 'exists:users,id'],
             'semester' => ['nullable', 'in:S1,S2'],
+            'group_divisions' => ['nullable', 'array'],
+            'group_divisions.*' => ['in:G1,G2'],
         ]);
+
+        // Convert array of checkboxes to comma-separated string
+        if (!empty($validatedData['group_divisions'])) {
+            $validatedData['group_divisions'] = implode(',', $validatedData['group_divisions']);
+        } else {
+            $validatedData['group_divisions'] = null;
+        }
 
         $conflicts = $this->checkConflicts($validatedData);
 
