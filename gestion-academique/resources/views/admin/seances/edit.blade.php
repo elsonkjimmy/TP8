@@ -66,7 +66,7 @@
                         <select id="salle_id" name="salle_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('salle_id') border-red-500 @enderror" required>
                             <option value="">Sélectionner une salle</option>
                             @foreach ($salles as $salle)
-                                <option value="{{ $salle->id }}" {{ old('salle_id', $seance->salle_id) == $salle->id ? 'selected' : '' }}>
+                                <option value="{{ $salle->id }}" data-capacite="{{ $salle->capacite }}" {{ old('salle_id', $seance->salle_id) == $salle->id ? 'selected' : '' }}>
                                     {{ $salle->numero }} (Capacité: {{ $salle->capacite }})
                                 </option>
                             @endforeach
@@ -82,7 +82,7 @@
                         <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror" required>
                             <option value="">Sélectionner un groupe</option>
                             @foreach ($groupes as $groupe)
-                                <option value="{{ $groupe->id }}" {{ old('groupe_id', $seance->groupe_id) == $groupe->id ? 'selected' : '' }}>
+                                <option value="{{ $groupe->id }}" data-effectif="{{ $groupe->effectifs->first()?->effectif ?? 0 }}" {{ old('groupe_id', $seance->groupe_id) == $groupe->id ? 'selected' : '' }}>
                                     {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? 'N/A' }})
                                 </option>
                             @endforeach
@@ -131,3 +131,43 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function() {
+        const form = document.querySelector('form');
+        const salleSelect = document.getElementById('salle_id');
+        const groupeSelect = document.getElementById('groupe_id');
+
+        function validateCapacity(e) {
+            const selectedSalleOption = salleSelect.options[salleSelect.selectedIndex];
+            const selectedGroupeOption = groupeSelect.options[groupeSelect.selectedIndex];
+
+            if (!selectedSalleOption.value || !selectedGroupeOption.value) {
+                return true; // Laisser passer si un champ n'est pas rempli
+            }
+
+            const capacity = parseInt(selectedSalleOption.dataset.capacite);
+            const effectif = parseInt(selectedGroupeOption.dataset.effectif);
+
+            if (effectif > 0 && effectif > capacity) {
+                e.preventDefault();
+
+                const salleName = selectedSalleOption.text.split('(')[0].trim();
+                const groupName = selectedGroupeOption.text.split('(')[0].trim();
+
+                const message = `⚠️ ATTENTION!\n\nCapacité insuffisante:\n- Salle: ${salleName} (${capacity} places)\n- Groupe: ${groupName} (${effectif} étudiants)\n\nÊtes-vous sûr de vouloir continuer?`;
+
+                if (confirm(message)) {
+                    form.submit();
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        form.addEventListener('submit', validateCapacity);
+    })();
+</script>
+@endpush

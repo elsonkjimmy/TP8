@@ -81,6 +81,7 @@
                     <table class="w-full">
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Filière</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Niveau</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Année</th>
                                 <th class="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Semestre</th>
@@ -93,6 +94,9 @@
                                 @if($groupe->effectifs->count() > 0)
                                     @foreach($groupe->effectifs->sortByDesc('annee')->sortBy('semestre') as $effectif)
                                         <tr class="border-b border-gray-200 hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-sm text-gray-900 font-medium">
+                                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ $groupe->filiere->nom ?? 'N/A' }}</span>
+                                            </td>
                                             <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ $groupe->nom }}</td>
                                             <td class="px-4 py-3 text-sm text-gray-600">{{ $effectif->annee }}/{{ $effectif->annee + 1 }}</td>
                                             <td class="px-4 py-3 text-sm text-gray-600">{{ $effectif->semestre }}</td>
@@ -111,7 +115,7 @@
                                 @endif
                             @empty
                                 <tr>
-                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500">
+                                    <td colspan="6" class="px-4 py-8 text-center text-gray-500">
                                         Aucun effectif défini
                                     </td>
                                 </tr>

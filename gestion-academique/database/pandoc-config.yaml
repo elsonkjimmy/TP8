@@ -1,0 +1,30 @@
+---
+title: "Système de Gestion Académique"
+subtitle: "Cahier de Conception et d'Implémentation"
+author: "Étudiants en Informatique - Université de Yaoundé I"
+date: "24 Janvier 2026"
+lang: "fr"
+documentclass: report
+classoption:
+  - "14pt"
+  - "twoside"
+geometry:
+  - "margin=2.5cm"
+  - "top=3cm"
+  - "bottom=3cm"
+colorlinks: true
+linkcolor: "blue"
+urlcolor: "blue"
+toccolor: "black"
+toc: true
+toc-depth: 3
+number-sections: true
+listings: true
+highlight-style: "tango"
+code-block-font-size: "\\small"
+mainfont: "Calibri"
+sansfont: "Arial"
+monofont: "Courier New"
+fontsize: "12pt"
+linestretch: 1.5
+---

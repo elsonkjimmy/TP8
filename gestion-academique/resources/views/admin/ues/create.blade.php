@@ -56,7 +56,7 @@
                         <select id="groupe_id" name="groupe_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('groupe_id') border-red-500 @enderror">
                             <option value="">Sélectionner un groupe (optionnel)</option>
                             @foreach ($groupes as $groupe)
-                                <option value="{{ $groupe->id }}" {{ old('groupe_id') == $groupe->id ? 'selected' : '' }}>
+                                <option value="{{ $groupe->id }}" data-filiere-id="{{ $groupe->filiere_id }}" {{ old('groupe_id') == $groupe->id ? 'selected' : '' }}>
                                     {{ $groupe->nom }} ({{ $groupe->filiere->nom ?? '' }})
                                 </option>
                             @endforeach
@@ -64,6 +64,7 @@
                         @error('groupe_id')
                             <p class="text-red-500 text-xs italic">{{ $message }}</p>
                         @enderror
+                        <p class="text-red-500 text-xs italic mt-1" id="groupe-warning" style="display: none;">Le groupe doit appartenir à la filière sélectionnée</p>
                     </div>
 
                     <!-- Enseignant -->
@@ -108,9 +109,55 @@
 
 @push('scripts')
     <script>
+        // Validation du groupe selon la filière
+        const filiereSelect = document.getElementById('filiere_id');
+        const groupeSelect = document.getElementById('groupe_id');
+        const groupeWarning = document.getElementById('groupe-warning');
+
+        function updateGroupeOptions() {
+            const selectedFiliereId = filiereSelect.value;
+            groupeWarning.style.display = 'none';
+            groupeSelect.classList.remove('border-red-500');
+
+            // Afficher/masquer les groupes selon la filière
+            Array.from(groupeSelect.options).forEach(option => {
+                if (option.value === '') {
+                    option.style.display = 'block';
+                } else {
+                    const groupeFiliereId = option.dataset.filiereId;
+                    option.style.display = (groupeFiliereId == selectedFiliereId) ? 'block' : 'none';
+                }
+            });
+
+            // Réinitialiser le groupe si sélectionné n'est pas valide
+            if (groupeSelect.value && !Array.from(groupeSelect.options).find(o => o.value === groupeSelect.value && o.style.display !== 'none')) {
+                groupeSelect.value = '';
+            }
+        }
+
+        filiereSelect.addEventListener('change', updateGroupeOptions);
+
+        // Validation lors de la soumission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const selectedFiliereId = filiereSelect.value;
+            const selectedGroupeId = groupeSelect.value;
+
+            if (selectedGroupeId) {
+                const selectedOption = groupeSelect.querySelector(`option[value="${selectedGroupeId}"]`);
+                if (selectedOption.dataset.filiereId != selectedFiliereId) {
+                    e.preventDefault();
+                    groupeWarning.style.display = 'block';
+                    groupeSelect.classList.add('border-red-500');
+                    return false;
+                }
+            }
+        });
+
+        // Initialiser au chargement
+        updateGroupeOptions();
+
         // Chapters dynamic list
         (function(){
-            // Use server-rendered container if present
             const container = document.getElementById('chapters_container');
             const list = container.querySelector('#chapters_list');
 
@@ -130,8 +177,6 @@
             });
 
             document.querySelectorAll('.btn-remove').forEach(bindRemove);
-
-            // Prefill from old input if present (server-side handled on edit), otherwise leave a blank row
         })();
     </script>
 @endpush

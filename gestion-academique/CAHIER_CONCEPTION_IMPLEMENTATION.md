@@ -1113,9 +1113,9 @@ Le **Système de Gestion Académique** a été implémenté en suivant les meill
 
 ## CONTACTS ET SUPPORT
 
-**Auteurs :** Étudiants en Informatique - Université de Yaoundé I
-**Email Support :** support@gestion-academique.local
-**GitHub :** https://github.com/utilisateur/gestion-academique
+**Auteurs :** GROUPE 6
+**Email Support :** fakou909@gmail.com
+**GitHub :** https://github.com/T4zor/gestion-academique
 
 ---
 

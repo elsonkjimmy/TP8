@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUeRequest;
+use App\Http\Requests\UpdateUeRequest;
 use App\Models\Filiere;
 use App\Models\Groupe;
 use App\Models\Ue;
@@ -48,19 +50,11 @@ class AdminUeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUeRequest $request)
     {
-        $request->validate([
-            'code' => ['required', 'string', 'max:255', 'unique:ues'],
-            'nom' => ['required', 'string', 'max:255'],
-            'filiere_id' => ['required', 'exists:filieres,id'],
-            'groupe_id' => ['nullable', 'exists:groupes,id'],
-            'enseignant_id' => ['required', 'exists:users,id'],
-            'chapters' => ['nullable','array'],
-            'chapters.*' => ['required','string','max:255'],
-        ]);
+        $validated = $request->validated();
 
-        $ue = Ue::create($request->only(['code','nom','filiere_id','groupe_id','enseignant_id']));
+        $ue = Ue::create($validated);
 
         // Create chapters if provided
         $chapters = $request->input('chapters', []);
@@ -101,19 +95,11 @@ class AdminUeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Ue $ue)
+    public function update(UpdateUeRequest $request, Ue $ue)
     {
-        $request->validate([
-            'code' => ['required', 'string', 'max:255', Rule::unique('ues')->ignore($ue->id)],
-            'nom' => ['required', 'string', 'max:255'],
-            'filiere_id' => ['required', 'exists:filieres,id'],
-            'groupe_id' => ['nullable', 'exists:groupes,id'],
-            'enseignant_id' => ['required', 'exists:users,id'],
-            'chapters' => ['nullable','array'],
-            'chapters.*' => ['required','string','max:255'],
-        ]);
+        $validated = $request->validated();
 
-        $ue->update($request->only(['code','nom','filiere_id','groupe_id','enseignant_id']));
+        $ue->update($validated);
 
         // Sync chapters: simple approach -> delete existing and recreate
         $chapters = $request->input('chapters', []);
