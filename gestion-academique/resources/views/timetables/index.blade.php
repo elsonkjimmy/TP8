@@ -108,6 +108,18 @@
                                                 <p class="text-xs text-blue-700 font-semibold">Groupe: {{ $seance->group_divisions }}</p>
                                             @endif
                                             <p class="text-xs">Enseignant: {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}</p>
+                                            
+                                            {{-- Desiderata Button --}}
+                                            @auth
+                                                @if(Auth::user()->role === 'teacher' && !$seance->enseignant_id && !isset($seance->jour))
+                                                    <div class="mt-2 pt-2 border-t border-blue-200 flex justify-end">
+                                                        <button onclick="openDesiderataModal({{ $seance->id }}, '{{ addslashes($seance->ue->nom ?? '') }}', '{{ $seance->day_of_week }}', '{{ $seance->start_time }}')" 
+                                                            class="bg-orange-500 hover:bg-orange-600 text-white text-xs px-2 py-1 rounded shadow transition-colors flex items-center gap-1" title="Se positionner sur ce créneau">
+                                                            <i class="fas fa-plus"></i> Se positionner
+                                                        </button>
+                                                    </div>
+                                                @endif
+                                            @endauth
                                         </div>
                                     @empty
                                         <p class="text-gray-400 text-xs italic">-</p>
@@ -157,6 +169,18 @@
                                                         <p class="text-xs text-blue-700 font-semibold">Groupe: {{ $seance->group_divisions }}</p>
                                                     @endif
                                                     <p class="text-xs">Enseignant: {{ $seance->enseignant->first_name ?? '' }} {{ $seance->enseignant->last_name ?? '' }}</p>
+                                                    
+                                                    {{-- Desiderata Button (Mobile) --}}
+                                                    @auth
+                                                        @if(Auth::user()->role === 'teacher' && !$seance->enseignant_id && !isset($seance->jour))
+                                                            <div class="mt-2 pt-2 border-t border-blue-200 flex justify-end">
+                                                                <button onclick="openDesiderataModal({{ $seance->id }}, '{{ addslashes($seance->ue->nom ?? '') }}', '{{ $seance->day_of_week }}', '{{ $seance->start_time }}')" 
+                                                                    class="bg-orange-500 hover:bg-orange-600 text-white text-xs px-2 py-1 rounded shadow transition-colors flex items-center gap-1">
+                                                                    <i class="fas fa-plus"></i> Se positionner
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                    @endauth
                                                 </div>
                                             @endforeach
                                         </div>
@@ -254,5 +278,58 @@
         // Mettre à jour l'état du bouton lors du changement de filière ou groupe
         document.getElementById('filiere_id').addEventListener('change', updateExportButtonState);
         document.getElementById('groupe_id').addEventListener('change', updateExportButtonState);
+
+        // Modal Logic
+        function openDesiderataModal(templateId, ueName, day, time) {
+            document.getElementById('modal_template_id').value = templateId;
+            document.getElementById('modal_ue_name').textContent = ueName;
+            document.getElementById('desiderata-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeDesiderataModal() {
+            document.getElementById('desiderata-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     </script>
+
+    <!-- Modal Desiderata -->
+    <div id="desiderata-modal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-900/60 transition-opacity backdrop-blur-sm" onclick="closeDesiderataModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4 text-center">
+                <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                    <div class="bg-primary p-6 flex justify-between items-center text-white">
+                        <h3 class="text-xl font-bold" id="modal-title">
+                            <i class="fas fa-hand-paper mr-2"></i>Se positionner
+                        </h3>
+                        <button type="button" class="text-white hover:text-gray-200" onclick="closeDesiderataModal()">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="px-6 py-6 bg-white">
+                        <div class="mb-6 bg-blue-50 border border-blue-100 rounded-xl p-4">
+                             <p class="text-sm text-gray-500 font-bold uppercase mb-1">Unité d'Enseignement</p>
+                             <p id="modal_ue_name" class="font-bold text-gray-900 text-lg"></p>
+                        </div>
+
+                        <form action="{{ route('teacher.desideratas.store') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="seance_template_id" id="modal_template_id">
+                            
+                            <div class="mb-6">
+                                <label for="comment" class="block text-sm font-bold text-gray-700 mb-2">Message (Facultatif)</label>
+                                <textarea name="comment" id="comment" rows="3" class="w-full rounded-lg border-gray-300 focus:border-primary focus:ring-primary shadow-sm text-sm" placeholder="Ex: Ce créneau me convient parfaitement..."></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end gap-3">
+                                <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition-colors" onclick="closeDesiderataModal()">Annuler</button>
+                                <button type="submit" class="px-4 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 transition-colors">Envoyer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

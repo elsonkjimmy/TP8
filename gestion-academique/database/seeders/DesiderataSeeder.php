@@ -64,28 +64,44 @@ class DesiderataSeeder extends Seeder
         );
 
         // 3. Create Unassigned Seance Templates (Slots)
+        // 3. Create Unassigned Seance Templates (Slots)
         // Slot 1: Monday 08:00 - 11:00
-        SeanceTemplate::create([
+        SeanceTemplate::firstOrCreate([
+            'day_of_week' => 1, // Lundi
+            'start_time' => '08:00:00',
+            'salle_id' => $salle->id,
+        ], [
             'filiere_id' => $filiere->id,
             'groupe_id' => $groupe->id,
             'ue_id' => $ue->id,
-            'salle_id' => $salle->id,
-            'enseignant_id' => null, // UNASSIGNED - This is what allows the teacher to request it
-            'day_of_week' => 1, // Lundi
-            'start_time' => '08:00:00',
             'end_time' => '11:00:00',
+            'enseignant_id' => null, // UNASSIGNED
         ]);
 
         // Slot 2: Wednesday 14:00 - 17:00
-        SeanceTemplate::create([
+        SeanceTemplate::firstOrCreate([
+            'day_of_week' => 3, // Mercredi
+            'start_time' => '14:00:00',
+            'salle_id' => $salle->id,
+        ], [
             'filiere_id' => $filiere->id,
             'groupe_id' => $groupe->id,
             'ue_id' => $ue->id,
-            'salle_id' => $salle->id,
-            'enseignant_id' => null, // UNASSIGNED
-            'day_of_week' => 3, // Mercredi
-            'start_time' => '14:00:00',
             'end_time' => '17:00:00',
+            'enseignant_id' => null, // UNASSIGNED
+        ]);
+
+        // Slot 3: Friday 08:00 - 11:00 (New request)
+        SeanceTemplate::firstOrCreate([
+            'day_of_week' => 5, // Vendredi
+            'start_time' => '08:00:00',
+            'salle_id' => $salle->id,
+        ], [
+            'filiere_id' => $filiere->id,
+            'groupe_id' => $groupe->id,
+            'ue_id' => $ue->id,
+            'end_time' => '11:00:00',
+            'enseignant_id' => null, // UNASSIGNED
         ]);
 
         $this->command->info('Desiderata verification data seeded successfully!');
