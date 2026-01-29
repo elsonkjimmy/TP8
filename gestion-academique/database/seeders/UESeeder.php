@@ -40,12 +40,24 @@ class UESeeder extends Seeder
         ];
 
         foreach ($filieres as $filiere) {
-            $filiereLevel = substr($filiere->code, -2); // L1, L2, etc.
+            $codeSuffix = substr($filiere->code, -2); // L1, L2, etc.
             
-            // Assign UEs based on level approximation (simple logic)
+            // Map Level to Course Number Prefix
+            $levelNum = match($codeSuffix) {
+                'L1' => '1',
+                'L2' => '2',
+                'L3' => '3',
+                'M1' => '4', // M1 courses usually start with 4
+                'M2' => '5', // M2 courses usually start with 5
+                default => null,
+            };
+
+            if (!$levelNum) continue;
+
+            // Assign UEs based on level
             foreach ($ues as $ue) {
-                // If UE code contains level number (1 for L1, 2 for L2...)
-                $levelNum = substr($filiereLevel, 1);
+                // Check if UE code corresponds to the filiere level
+                // e.g. INF101 for L1 (1), INF401 for M1 (4)
                 if (str_contains($ue['code'], 'INF'.$levelNum) || str_contains($ue['code'], 'MAT'.$levelNum)) {
                      // Assign to a random teacher
                      $teacher = $teachers->random();
@@ -54,9 +66,10 @@ class UESeeder extends Seeder
 
                      if ($groupe) {
                         Ue::firstOrCreate(
-                            ['code' => $ue['code'], 'filiere_id' => $filiere->id],
+                            ['code' => $ue['code']], // Check uniqueness on CODE only first to avoid global clash
                             [
                                 'nom' => $ue['nom'],
+                                'filiere_id' => $filiere->id,
                                 'enseignant_id' => $teacher->id,
                                 'groupe_id' => $groupe->id
                             ]

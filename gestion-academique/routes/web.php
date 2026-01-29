@@ -91,6 +91,7 @@ Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefi
     Route::resource('demandes', DemandeModificationController::class, ['only' => ['index', 'create', 'store', 'show', 'destroy']]);
 
     // Desideratas
+    Route::get('desideratas/create', [App\Http\Controllers\Teacher\DesiderataController::class, 'create'])->name('desideratas.create');
     Route::post('desideratas', [App\Http\Controllers\Teacher\DesiderataController::class, 'store'])->name('desideratas.store');
     Route::get('desideratas', [App\Http\Controllers\Teacher\DesiderataController::class, 'index'])->name('desideratas.index');
     Route::delete('desideratas/{desiderata}', [App\Http\Controllers\Teacher\DesiderataController::class, 'destroy'])->name('desideratas.destroy');
