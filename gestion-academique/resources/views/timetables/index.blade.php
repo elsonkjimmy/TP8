@@ -39,6 +39,9 @@
                         <button type="button" id="toggleAdvancedFilters" class="flex-1 sm:flex-none bg-gray-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors text-sm">
                             <i class="fas fa-plus mr-2"></i>Plus de filtres
                         </button>
+                        <a id="exportPdfBtn" href="#" class="flex-1 sm:flex-none bg-gray-300 text-gray-500 px-4 py-2 rounded-lg font-medium cursor-not-allowed text-sm inline-flex items-center justify-center" disabled>
+                            <i class="fas fa-file-pdf mr-2"></i>Exporter PDF
+                        </a>
                     </div>
                 </div>
 
@@ -221,6 +224,35 @@
         document.addEventListener('DOMContentLoaded', function() {
             const event = new Event('change');
             document.getElementById('filiere_id').dispatchEvent(event);
+            updateExportButtonState();
         });
+
+        // Gérer l'activation du bouton Export PDF
+        function updateExportButtonState() {
+            const filiereId = document.getElementById('filiere_id').value;
+            const groupeId = document.getElementById('groupe_id').value;
+            const exportBtn = document.getElementById('exportPdfBtn');
+
+            // Le bouton s'active que si : filière ET groupe sont sélectionnés
+            if (filiereId !== '' && groupeId !== '') {
+                // Activer le bouton
+                exportBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                exportBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-700', 'cursor-pointer');
+                exportBtn.href = `{{ route('timetables.export-pdf') }}?filiere_id=${filiereId}&groupe_id=${groupeId}`;
+                exportBtn.removeAttribute('disabled');
+                exportBtn.style.pointerEvents = 'auto';
+            } else {
+                // Désactiver le bouton
+                exportBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                exportBtn.classList.remove('bg-green-600', 'text-white', 'hover:bg-green-700', 'cursor-pointer');
+                exportBtn.href = '#';
+                exportBtn.setAttribute('disabled', 'disabled');
+                exportBtn.style.pointerEvents = 'none';
+            }
+        }
+
+        // Mettre à jour l'état du bouton lors du changement de filière ou groupe
+        document.getElementById('filiere_id').addEventListener('change', updateExportButtonState);
+        document.getElementById('groupe_id').addEventListener('change', updateExportButtonState);
     </script>
 @endsection

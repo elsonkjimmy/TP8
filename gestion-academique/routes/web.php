@@ -115,6 +115,7 @@ require __DIR__.'/auth.php';
 
 Route::get('/timetables', [TimetableController::class, 'index'])->name('timetables.index');
 Route::get('/timetables/get-filter-options', [TimetableController::class, 'getFilterOptions'])->name('timetables.get-filter-options');
+Route::get('/timetables/export-pdf', [TimetableController::class, 'exportPdf'])->name('timetables.export-pdf');
 
 // Seance templates (admin only)
 use App\Http\Controllers\SeanceTemplateController;

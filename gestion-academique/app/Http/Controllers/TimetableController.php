@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Salle;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TimetableController extends Controller
 {
@@ -139,5 +140,148 @@ class TimetableController extends Controller
             'monday',
             'today'
         ));
+    }
+
+    /**
+     * Export timetable as PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        $selectedFiliere = $request->input('filiere_id');
+        $selectedGroupe = $request->input('groupe_id');
+        $selectedEnseignant = $request->input('enseignant_id');
+        $selectedSalle = $request->input('salle_id');
+
+        // Récupérer la semaine actuelle
+        $today = Carbon::now();
+        $monday = $today->copy()->startOfWeek(Carbon::MONDAY);
+        $sunday = $today->copy()->endOfWeek(Carbon::SUNDAY);
+
+        // Récupérer les séances datées de la semaine
+        $querySeances = Seance::with(['ue', 'salle', 'groupe', 'enseignant'])
+            ->whereBetween('jour', [$monday, $sunday]);
+
+        if ($selectedFiliere) {
+            $querySeances->whereHas('groupe', function ($q) use ($selectedFiliere) {
+                $q->where('filiere_id', $selectedFiliere);
+            });
+        }
+
+        if ($selectedGroupe) {
+            $querySeances->where('groupe_id', $selectedGroupe);
+        }
+
+        if ($selectedEnseignant) {
+            $querySeances->where('enseignant_id', $selectedEnseignant);
+        }
+
+        if ($selectedSalle) {
+            $querySeances->where('salle_id', $selectedSalle);
+        }
+
+        $seances = $querySeances->get();
+
+        // Récupérer les templates
+        $queryTemplates = SeanceTemplate::with(['ue', 'salle', 'groupe', 'filiere', 'enseignant']);
+
+        if ($selectedFiliere) {
+            $queryTemplates->where('filiere_id', $selectedFiliere);
+        }
+
+        if ($selectedGroupe) {
+            $queryTemplates->where('groupe_id', $selectedGroupe);
+        }
+
+        if ($selectedEnseignant) {
+            $queryTemplates->where('enseignant_id', $selectedEnseignant);
+        }
+
+        if ($selectedSalle) {
+            $queryTemplates->where('salle_id', $selectedSalle);
+        }
+
+        $templates = $queryTemplates->get();
+
+        // Construire la grille
+        $days = ['Monday' => 'Lundi', 'Tuesday' => 'Mardi', 'Wednesday' => 'Mercredi', 'Thursday' => 'Jeudi', 'Friday' => 'Vendredi', 'Saturday' => 'Samedi'];
+        $timeSlots = [
+            '08:00-11:00' => ['start' => '08:00', 'end' => '11:00'],
+            '11:30-14:30' => ['start' => '11:30', 'end' => '14:30'],
+            '15:00-18:00' => ['start' => '15:00', 'end' => '18:00'],
+        ];
+
+        $timetableGrid = [];
+        $usedRooms = collect();
+
+        foreach ($days as $dayKey => $dayName) {
+            $dayDate = $monday->copy()->modify($dayKey === 'Monday' ? 'monday' : ('next ' . strtolower($dayKey)));
+            if ($dayKey !== 'Monday') {
+                $dayDate = $monday->copy()->addDays(array_search($dayKey, array_keys($days)));
+            }
+
+            $dayOfWeek = $dayDate->dayOfWeek == 0 ? 7 : $dayDate->dayOfWeek;
+            
+            $timetableGrid[$dayName] = [];
+            foreach ($timeSlots as $slotKey => $slot) {
+                $daySeances = $seances->filter(function ($seance) use ($dayDate, $slot) {
+                    $seanceDate = Carbon::parse($seance->jour)->format('Y-m-d');
+                    $targetDate = $dayDate->format('Y-m-d');
+                    $seanceStart = Carbon::parse($seance->heure_debut)->format('H:i');
+                    
+                    return $seanceDate === $targetDate && $seanceStart >= $slot['start'] && $seanceStart < $slot['end'];
+                });
+
+                $dayTemplates = [];
+                if ($daySeances->isEmpty()) {
+                    $dayTemplates = $templates->filter(function ($template) use ($dayOfWeek, $slot) {
+                        return $template->day_of_week == $dayOfWeek && 
+                               $template->start_time >= $slot['start'] && 
+                               $template->start_time < $slot['end'];
+                    });
+                }
+
+                $items = $daySeances->isNotEmpty() ? $daySeances : $dayTemplates;
+                $timetableGrid[$dayName][$slotKey] = $items;
+
+                // Collecter les salles utilisées
+                foreach ($items as $item) {
+                    if ($item->salle) {
+                        $usedRooms->push($item->salle);
+                    }
+                }
+            }
+        }
+
+        // Récupérer les informations de filière et groupe
+        $filiere = $selectedFiliere ? Filiere::find($selectedFiliere) : null;
+        $groupe = $selectedGroupe ? Groupe::find($selectedGroupe) : null;
+        $enseignant = $selectedEnseignant ? User::find($selectedEnseignant) : null;
+
+        // Salles uniques
+        $usedRooms = $usedRooms->unique('id');
+
+        $data = [
+            'filiere' => $filiere,
+            'groupe' => $groupe,
+            'enseignant' => $enseignant,
+            'timetableGrid' => $timetableGrid,
+            'timeSlots' => $timeSlots,
+            'days' => $days,
+            'monday' => $monday,
+            'sunday' => $sunday,
+            'usedRooms' => $usedRooms,
+            'year' => date('Y'),
+            'semester' => 'S1', // À adapter selon votre logique
+        ];
+
+        $pdf = Pdf::loadView('timetables.pdf', $data)
+            ->setPaper('a4', 'landscape')
+            ->setOption('margin-top', 3)
+            ->setOption('margin-right', 3)
+            ->setOption('margin-bottom', 3)
+            ->setOption('margin-left', 1)
+            ->setOption('enable-local-file-access', true);
+        
+        return $pdf->download('emploi_du_temps_' . date('Y-m-d') . '.pdf');
     }
 }
