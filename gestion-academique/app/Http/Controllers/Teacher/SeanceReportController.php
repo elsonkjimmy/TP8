@@ -43,6 +43,7 @@ class SeanceReportController extends Controller
         ]);
 
         // Determine workflow: if teacher submits -> validated and mark seance completed; if delegate -> submitted
+        // Determine workflow: if teacher submits -> validated and mark seance completed; if delegate -> submitted
         if ($user->id === $seance->enseignant_id) {
             $status = 'validated';
         } else {
@@ -58,8 +59,7 @@ class SeanceReportController extends Controller
             'delegue_id' => $isDelegate ? $user->id : null,
             'contenu' => $data['contenu'] ?? null,
             'chapter_id' => $data['chapter_id'] ?? null,
-            // write legacy column too to satisfy older schemas
-            'statut' => $status,
+            'status' => $status,
         ]);
 
         if ($status === 'submitted') {
@@ -80,7 +80,7 @@ class SeanceReportController extends Controller
             $report->validated_by_id = $user->id;
             $report->validated_at = now();
             // keep legacy column in sync
-            $report->statut = 'validated';
+            $report->status = 'validated';
             $report->save();
 
             // mark seance as completed
@@ -118,7 +118,7 @@ class SeanceReportController extends Controller
             abort(403);
         }
 
-        $report->statut = 'validated';
+        $report->status = 'validated';
         $report->validated_by_id = $user->id;
         $report->validated_at = now();
         $report->save();

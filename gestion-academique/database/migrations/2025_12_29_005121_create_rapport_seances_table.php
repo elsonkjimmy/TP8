@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('rapport_seances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('seance_id')->constrained('seances');
-            $table->foreignId('enseignant_id')->constrained('users');
-            $table->foreignId('delegue_id')->constrained('users');
-            $table->text('contenu');
-            $table->string('statut');
+            $table->foreignId('seance_id')->constrained('seances')->onDelete('cascade');
+            $table->foreignId('filled_by_id')->nullable()->constrained('users');
+            $table->foreignId('validated_by_id')->nullable()->constrained('users');
+            $table->text('contenu')->nullable();
+            $table->string('status')->default('draft');
+            $table->timestamp('validated_at')->nullable();
             $table->timestamps();
         });
     }

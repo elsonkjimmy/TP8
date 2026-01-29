@@ -71,7 +71,7 @@ class TeacherController extends Controller
         $notifications = \App\Models\Notification::where('destinataire_id', $teacherId)->orderBy('created_at', 'desc')->get();
 
         // Reports awaiting validation for this teacher
-        $pendingReports = RapportSeance::with('seance')->where('statut', 'submitted')->whereHas('seance', function ($q) use ($teacherId) {
+        $pendingReports = RapportSeance::with('seance')->where('status', 'submitted')->whereHas('seance', function ($q) use ($teacherId) {
             $q->where('enseignant_id', $teacherId);
         })->orderBy('created_at', 'desc')->get();
 

@@ -32,7 +32,7 @@ class DelegateController extends Controller
             $reportsToValidate = RapportSeance::whereHas('seance', function ($query) use ($groupe) {
                                     $query->where('groupe_id', $groupe->id);
                                 })
-                                ->where('statut', 'pending') // Reports awaiting delegate validation
+                                ->where('status', 'pending') // Reports awaiting delegate validation
                                 ->with(['seance.ue', 'seance.enseignant'])
                                 ->get();
         }
@@ -54,12 +54,12 @@ class DelegateController extends Controller
         }
 
         $validated = $request->validate([
-            'statut' => ['required', 'string', Rule::in(['approved', 'rejected'])],
+            'status' => ['required', 'string', Rule::in(['approved', 'rejected'])],
         ]);
 
         $rapportSeance->update([
-            'statut' => $validated['statut'],
-            'délégué_id' => $delegate->id, // Assign the delegate who validated it
+            'status' => $validated['status'],
+            'validated_by_id' => $delegate->id, // Assign the delegate who validated it
         ]);
 
         return redirect()->back()->with('success', 'Statut du rapport mis à jour avec succès.');
