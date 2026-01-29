@@ -66,9 +66,7 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <a href="/" class="flex items-center gap-3 group">
-                    <div class="relative w-10 h-10 overflow-hidden rounded-lg bg-gradient-to-br from-primary to-accent p-0.5 shadow-lg group-hover:shadow-glow transition-all duration-300">
-                        <img src="{{ asset('images/Blason_uy1.png') }}" alt="Logo" class="w-full h-full object-cover bg-white rounded-md">
-                    </div>
+                    <img src="{{ asset('images/Blason_uy1.png') }}" alt="Logo" class="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-110">
                     <div class="leading-tight">
                         <h1 class="text-xl font-bold text-gray-900 tracking-tight">Département Info</h1>
                         <p class="text-xs text-primary font-medium tracking-wide">Université de Yaoundé I</p>
@@ -200,7 +198,7 @@
             <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
                 <div class="md:col-span-5">
                     <a href="/" class="flex items-center gap-3 mb-6">
-                        <img src="{{ asset('images/Blason_uy1.png') }}" alt="Logo" class="h-12 w-auto brightness-0 invert opacity-80">
+                        <img src="{{ asset('images/Blason_uy1.png') }}" alt="Logo" class="h-12 w-auto bg-white rounded-full p-0.5">
                         <div>
                             <h3 class="text-lg font-bold">Département d'Informatique</h3>
                             <p class="text-xs text-gray-400">Université de Yaoundé I</p>

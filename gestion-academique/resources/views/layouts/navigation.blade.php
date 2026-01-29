@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center gap-2 group">
-                        <x-application-logo class="block h-9 w-auto fill-current text-primary transition-transform group-hover:scale-110" />
+                        <img src="{{ asset('images/Blason_uy1.png') }}" alt="Logo" class="block h-9 w-auto transition-transform group-hover:scale-110">
                         <span class="font-bold text-xl tracking-tight text-gray-800 group-hover:text-primary transition-colors hidden md:block">
                             Gestion<span class="text-primary">Académique</span>
                         </span>
