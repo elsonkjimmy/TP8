@@ -33,27 +33,18 @@ class DelegateController extends Controller
                 }
             })->values();
 
-        // Draft reports filled by this delegate - try modern schema, fall back to legacy columns
+        // Draft reports filled by this delegate
         try {
-            $draftReports = RapportSeance::with('seance')->where('filled_by_id', $user->id)->where('status', 'draft')->get();
+            $draftReports = RapportSeance::with('seance')->where('filled_by_id', $user->id)->where('statut', 'draft')->get();
         } catch (\Throwable $e) {
-            // Fallback for older schema: use `delegue_id` and French `statut` column
-            try {
-                $draftReports = RapportSeance::with('seance')->where('delegue_id', $user->id)->where('statut', 'draft')->get();
-            } catch (\Throwable $e) {
-                $draftReports = collect();
-            }
+            $draftReports = collect();
         }
 
         // Submitted reports (awaiting teacher validation)
         try {
-            $reportsToValidate = RapportSeance::with('seance')->where('filled_by_id', $user->id)->where('status', 'submitted')->get();
+            $reportsToValidate = RapportSeance::with('seance')->where('filled_by_id', $user->id)->where('statut', 'submitted')->get();
         } catch (\Throwable $e) {
-            try {
-                $reportsToValidate = RapportSeance::with('seance')->where('delegue_id', $user->id)->where('statut', 'submitted')->get();
-            } catch (\Throwable $e) {
-                $reportsToValidate = collect();
-            }
+            $reportsToValidate = collect();
         }
 
         // Determine the delegate's main groupe (if any) based on their assigned seances
@@ -80,7 +71,7 @@ class DelegateController extends Controller
         }
 
         // Can only edit if not validated
-        if ($report->status === 'validated') {
+        if ($report->statut === 'validated') {
             return redirect()->back()->with('error', 'Impossible de modifier un rapport validé.');
         }
 
@@ -101,7 +92,7 @@ class DelegateController extends Controller
         }
 
         // Can only update if not validated
-        if ($report->status === 'validated') {
+        if ($report->statut === 'validated') {
             return redirect()->back()->with('error', 'Impossible de modifier un rapport validé.');
         }
 
@@ -132,7 +123,7 @@ class DelegateController extends Controller
         }
 
         // Can only delete if not validated
-        if ($report->status === 'validated') {
+        if ($report->statut === 'validated') {
             return redirect()->back()->with('error', 'Impossible de supprimer un rapport validé.');
         }
 

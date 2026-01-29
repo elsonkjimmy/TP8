@@ -58,7 +58,6 @@ class SeanceReportController extends Controller
             'delegue_id' => $isDelegate ? $user->id : null,
             'contenu' => $data['contenu'] ?? null,
             'chapter_id' => $data['chapter_id'] ?? null,
-            'status' => $status,
             // write legacy column too to satisfy older schemas
             'statut' => $status,
         ]);
@@ -119,7 +118,7 @@ class SeanceReportController extends Controller
             abort(403);
         }
 
-        $report->status = 'validated';
+        $report->statut = 'validated';
         $report->validated_by_id = $user->id;
         $report->validated_at = now();
         $report->save();

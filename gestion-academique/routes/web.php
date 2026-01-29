@@ -66,6 +66,11 @@ Route::middleware(['auth', 'verified', 'role:admin'])->name('admin.')->prefix('a
     Route::resource('demandes-modifications', AdminDemandeModificationController::class, ['only' => ['index', 'show']]);
     Route::post('demandes-modifications/{demandeModification}/accept', [AdminDemandeModificationController::class, 'accept'])->name('demandes-modifications.accept');
     Route::post('demandes-modifications/{demandeModification}/reject', [AdminDemandeModificationController::class, 'reject'])->name('demandes-modifications.reject');
+
+    // Desideratas
+    Route::get('desideratas', [App\Http\Controllers\Admin\DesiderataController::class, 'index'])->name('desideratas.index');
+    Route::post('desideratas/{desiderata}/accept', [App\Http\Controllers\Admin\DesiderataController::class, 'accept'])->name('desideratas.accept');
+    Route::post('desideratas/{desiderata}/reject', [App\Http\Controllers\Admin\DesiderataController::class, 'reject'])->name('desideratas.reject');
 });
 
 Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefix('teacher')->group(function () {
@@ -84,6 +89,11 @@ Route::middleware(['auth', 'verified', 'role:teacher'])->name('teacher.')->prefi
 
     // Modification requests
     Route::resource('demandes', DemandeModificationController::class, ['only' => ['index', 'create', 'store', 'show', 'destroy']]);
+
+    // Desideratas
+    Route::post('desideratas', [App\Http\Controllers\Teacher\DesiderataController::class, 'store'])->name('desideratas.store');
+    Route::get('desideratas', [App\Http\Controllers\Teacher\DesiderataController::class, 'index'])->name('desideratas.index');
+    Route::delete('desideratas/{desiderata}', [App\Http\Controllers\Teacher\DesiderataController::class, 'destroy'])->name('desideratas.destroy');
 });
 
 use App\Http\Controllers\Delegate\DelegateController; // Use the namespaced controller

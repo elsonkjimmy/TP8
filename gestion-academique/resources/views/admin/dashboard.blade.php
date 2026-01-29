@@ -3,284 +3,216 @@
 @section('title', 'Tableau de bord Administrateur')
 
 @section('content')
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold text-primary mb-6">Tableau de bord Administrateur</h1>
+    <div class="container mx-auto px-4 lg:px-8 py-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+                    Tableau de bord Administrateur
+                </h1>
+                <p class="text-gray-500 mt-1">Vue d'ensemble de la gestion académique</p>
+            </div>
+            <div class="flex items-center gap-3">
+                 <div class="bg-white p-2 rounded-xl shadow-soft border border-gray-100 flex items-center gap-2 text-sm font-medium text-gray-600">
+                    <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                    Système actif
+                 </div>
+                 <button onclick="window.location.reload()" class="p-2 bg-white rounded-xl shadow-soft border border-gray-100 text-gray-500 hover:text-primary transition-colors">
+                     <i class="fas fa-sync-alt"></i>
+                 </button>
+            </div>
+        </div>
 
         <!-- ALERTS SECTION -->
         @if(count($completeClasses) > 0)
-            <div class="mb-8 p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
-                <div class="flex items-start gap-4">
-                    <div class="text-3xl">⚠️</div>
-                    <div class="flex-1">
-                        <h3 class="font-bold text-yellow-900 mb-2">Classes Complètes</h3>
-                        <p class="text-sm text-yellow-800 mb-3">
-                            Les classes suivantes ont tous leurs cours programmés pour ce semestre :
-                        </p>
-                        <div class="space-y-1">
-                            @foreach($completeClasses as $complete)
-                                <div class="text-sm text-yellow-900 font-medium">
-                                    • {{ $complete['groupe']->nom }} - {{ $complete['semestre'] }} ({{ $complete['annee'] }}/{{ $complete['annee'] + 1 }})
-                                </div>
-                            @endforeach
-                        </div>
+            <div class="mb-8 p-4 bg-orange-50 border border-orange-100 rounded-2xl flex items-start gap-4 shadow-sm animate-fade-in-down">
+                <div class="w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center shrink-0">
+                    <i class="fas fa-exclamation-triangle text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800">Classes Complètes</h3>
+                    <p class="text-sm text-gray-600 mt-1">
+                        Les classes suivantes ont tous leurs cours programmés pour ce semestre :
+                    </p>
+                     <div class="flex flex-wrap gap-2 mt-2">
+                        @foreach($completeClasses as $complete)
+                            <span class="px-2 py-1 bg-white border border-orange-200 text-orange-700 text-xs font-bold rounded-md">
+                                {{ $complete['groupe']->nom }} - S{{ $complete['semestre'] }}
+                            </span>
+                        @endforeach
                     </div>
                 </div>
             </div>
         @endif
 
-        <!-- Statistics Table (Collapsible) -->
-        <div class="bg-white rounded-xl shadow-lg mb-8" x-data="{ open: false }">
-            <div class="p-6 cursor-pointer hover:bg-gray-50 transition" @click="open = !open">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xl font-bold text-primary">Résumé des Statistiques</h2>
-                    <i class="fas fa-chevron-down transition-transform" :class="{ 'rotate-180': open }"></i>
+        <!-- Main Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <!-- Users Widget -->
+            <div class="bg-white rounded-2xl p-6 shadow-soft border border-gray-100 relative overflow-hidden group hover:shadow-glow transition-all duration-300">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                        <i class="fas fa-users text-lg"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-gray-800">{{ $totalUsers }}</span>
+                        <span class="text-sm font-medium text-gray-500">Utilisateurs Totaux</span>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 text-xs font-medium">
+                         <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-lg">{{ $totalTeachers }} Enseignants</span>
+                         <span class="text-green-600 bg-green-50 px-2 py-0.5 rounded-lg">{{ $totalDelegates }} Délégués</span>
+                    </div>
                 </div>
             </div>
 
-            <div x-show="open" @click.outside="open = false" class="border-t border-gray-200 p-6 overflow-auto">
-                <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b-2 border-gray-200">
-                        <th class="text-left py-3 px-4 font-semibold text-gray-700">Catégorie</th>
-                        <th class="text-center py-3 px-4 font-semibold text-gray-700">Nombre</th>
-                        <th class="text-center py-3 px-4 font-semibold text-gray-700">Statut</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Users Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-users text-primary mr-2"></i>Utilisateurs
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-primary text-lg">{{ $totalUsers }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Actifs</span>
-                        </td>
-                    </tr>
-
-                    <!-- Teachers Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-chalkboard-teacher text-accent mr-2"></i>Enseignants
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-accent text-lg">{{ $totalTeachers }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Enseignement</span>
-                        </td>
-                    </tr>
-
-                    <!-- Delegates Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-user-tie text-success mr-2"></i>Délégués
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-success text-lg">{{ $totalDelegates }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Actifs</span>
-                        </td>
-                    </tr>
-
-                    <!-- Filieres Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-graduation-cap text-purple-500 mr-2"></i>Filières
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-purple-500 text-lg">{{ $totalFilieres }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Programmes</span>
-                        </td>
-                    </tr>
-
-                    <!-- UEs Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-book text-blue-500 mr-2"></i>Unités d'Enseignement
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-blue-500 text-lg">{{ $totalUes }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Total</span>
-                        </td>
-                    </tr>
-
-                    <!-- Salles Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-building text-orange-500 mr-2"></i>Salles
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-orange-500 text-lg">{{ $totalSalles }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Disponibles</span>
-                        </td>
-                    </tr>
-
-                    <!-- Groupes Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-users-class text-teal-500 mr-2"></i>Groupes
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-teal-500 text-lg">{{ $totalGroupes }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Actifs</span>
-                        </td>
-                    </tr>
-
-                    <!-- Sessions Summary -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50 bg-gray-50 font-semibold">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-calendar-alt text-gray-600 mr-2"></i>Total Séances
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-gray-700 text-lg">{{ $totalSeances }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="text-sm text-gray-500">Sessions</span>
-                        </td>
-                    </tr>
-
-                    <!-- Completed Sessions Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-check-circle text-green-500 mr-2"></i>Séances Effectuées
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-green-500 text-lg">{{ $completedSeances }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="inline-block bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold">Complétées</span>
-                        </td>
-                    </tr>
-
-                    <!-- Pending Sessions Row -->
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-hourglass-half text-yellow-500 mr-2"></i>Séances Planifiées
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-yellow-500 text-lg">{{ $pendingSeances }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold">En attente</span>
-                        </td>
-                    </tr>
-
-                    <!-- Cancelled Sessions Row -->
-                    <tr class="hover:bg-gray-50">
-                        <td class="py-3 px-4 text-gray-800">
-                            <i class="fas fa-times-circle text-red-500 mr-2"></i>Séances Annulées
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="font-bold text-red-500 text-lg">{{ $cancelledSeances }}</span>
-                        </td>
-                        <td class="text-center py-3 px-4">
-                            <span class="inline-block bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-semibold">Annulées</span>
-                        </td>
-                    </tr>
-                </tbody>
-                </table>
-            </div>
-        </div> 
-
-        <!-- Action Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Timetables Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-indigo-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('seance-templates.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Emplois du Temps</p>
-                        <p class="text-sm text-indigo-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les Emplois du Temps</p>
+            <!-- UEs Widget -->
+            <div class="bg-white rounded-2xl p-6 shadow-soft border border-gray-100 relative overflow-hidden group hover:shadow-glow transition-all duration-300">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                        <i class="fas fa-book text-lg"></i>
                     </div>
-                    <i class="fas fa-calendar-check text-4xl text-indigo-500 opacity-50"></i>
-                </a>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-gray-800">{{ $totalUes }}</span>
+                        <span class="text-sm font-medium text-gray-500">Unités d'Enseignement</span>
+                    </div>
+                    <div class="mt-4 text-xs font-medium text-purple-600">
+                        {{ $totalFilieres }} Filières actives
+                    </div>
+                </div>
             </div>
 
-            <!-- Reports Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-green-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('admin.reports.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Rapports de Séance</p>
-                        <p class="text-sm text-green-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Consulter les rapports</p>
+            <!-- Seances Widget -->
+             <div class="bg-white rounded-2xl p-6 shadow-soft border border-gray-100 relative overflow-hidden group hover:shadow-glow transition-all duration-300">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                        <i class="fas fa-calendar-alt text-lg"></i>
                     </div>
-                    <i class="fas fa-file-alt text-4xl text-green-500 opacity-50"></i>
-                </a>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-gray-800">{{ $totalSeances }}</span>
+                        <span class="text-sm font-medium text-gray-500">Séances au Total</span>
+                    </div>
+                    <div class="mt-4 w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-gradient-to-r from-orange-400 to-red-500 h-1.5 rounded-full" style="width: {{ $totalSeances > 0 ? ($completedSeances / $totalSeances) * 100 : 0 }}%"></div>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-400 flex justify-between">
+                        <span>{{ $completedSeances }} terminées</span>
+                        <span>{{ $pendingSeances }} à venir</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Demandes de Modification Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('admin.demandes-modifications.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Demandes de Modification</p>
-                        <p class="text-sm text-orange-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les demandes</p>
+             <!-- Rooms Widget -->
+            <div class="bg-white rounded-2xl p-6 shadow-soft border border-gray-100 relative overflow-hidden group hover:shadow-glow transition-all duration-300">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+                <div class="relative z-10">
+                    <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                        <i class="fas fa-building text-lg"></i>
                     </div>
-                    <i class="fas fa-edit text-4xl text-orange-500 opacity-50"></i>
-                </a>
-            </div>
-
-            <!-- Gestion des Utilisateurs Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('admin.users.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Gestion des Utilisateurs</p>
-                        <p class="text-sm text-blue-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les utilisateurs</p>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-bold text-gray-800">{{ $totalSalles }}</span>
+                        <span class="text-sm font-medium text-gray-500">Salles de classe</span>
                     </div>
-                    <i class="fas fa-user-cog text-4xl text-blue-500 opacity-50"></i>
-                </a>
-            </div>
-
-            <!-- Gestion des Séances Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-purple-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('admin.seances.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Gestion des Séances</p>
-                        <p class="text-sm text-purple-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les séances</p>
+                    <div class="mt-4 text-xs font-medium text-teal-600">
+                        {{ $totalGroupes }} Groupes d'étudiants
                     </div>
-                    <i class="fas fa-clock text-4xl text-purple-500 opacity-50"></i>
-                </a>
-            </div>
-
-            <!-- Gestion des Effectifs Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-cyan-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('admin.groupe-effectifs.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Gestion des Effectifs</p>
-                        <p class="text-sm text-cyan-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les effectifs</p>
-                    </div>
-                    <i class="fas fa-chart-bar text-4xl text-cyan-500 opacity-50"></i>
-                </a>
-            </div>
-
-            <!-- Gestion des Salles Card -->
-            <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-pink-500 hover:shadow-xl transition-shadow cursor-pointer">
-                <a href="{{ route('admin.salles.index') }}" class="flex items-center justify-between h-full">
-                    <div>
-                        <p class="text-lg font-medium text-gray-600">Gestion des Salles</p>
-                        <p class="text-sm text-pink-600 mt-2"><i class="fas fa-arrow-right mr-1"></i>Gérer les salles</p>
-                    </div>
-                    <i class="fas fa-door-open text-4xl text-pink-500 opacity-50"></i>
-                </a>
+                </div>
             </div>
         </div>
 
-        <!-- Overall UE Progress Card -->
-        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-blue-700 mt-6">
-            <h2 class="text-xl font-bold text-primary mb-4">Avancement Global des UE</h2>
-            <div class="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
-                <div class="bg-blue-700 h-4 rounded-full" style="width: {{ $overallUeProgress }}%"></div>
-            </div>
-            <p class="text-lg font-bold text-blue-700 mt-2">{{ $overallUeProgress }}%</p>
+        <!-- Progress Bar -->
+        <div class="bg-gradient-to-br from-primary to-accent rounded-2xl shadow-lg p-8 text-white mb-12 relative overflow-hidden">
+             <div class="absolute top-0 left-0 w-full h-full bg-white/5 opacity-50 pattern-bg"></div> <!-- Optional pattern -->
+             <div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                 <div class="flex-1">
+                     <h2 class="text-2xl font-bold mb-2">Avancement Global des UE</h2>
+                     <p class="text-blue-100 opacity-90 text-sm">Progression moyenne sur l'ensemble des cours dispensés ce semestre.</p>
+                 </div>
+                 <div class="flex items-center gap-4 w-full md:w-1/2">
+                    <div class="flex-grow bg-black/20 rounded-full h-4 overflow-hidden backdrop-blur-sm">
+                        <div class="bg-white h-full rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all duration-1000 ease-out" style="width: {{ $overallUeProgress }}%"></div>
+                    </div>
+                    <span class="text-2xl font-bold">{{ $overallUeProgress }}%</span>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Quick Actions Grid -->
+        <h2 class="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            <i class="fas fa-rocket text-primary"></i> Gestion Rapide
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- Card Component Helper -->
+            @php
+                $actions = [
+                    [
+                        'title' => 'Emplois du Temps',
+                        'desc' => 'Gérer les plannings hebdomadaires',
+                        'icon' => 'calendar-check',
+                        'color' => 'indigo',
+                        'route' => route('seance-templates.index')
+                    ],
+                    [
+                        'title' => 'Rapports de Séance',
+                        'desc' => 'Consulter et valider les rapports',
+                        'icon' => 'file-alt',
+                        'color' => 'green',
+                        'route' => route('admin.reports.index')
+                    ],
+                    [
+                        'title' => 'Demandes de Modif.',
+                        'desc' => 'Gérer les changements de cours',
+                        'icon' => 'edit',
+                        'color' => 'orange',
+                        'route' => route('admin.demandes-modifications.index')
+                    ],
+                    [
+                        'title' => 'Utilisateurs',
+                        'desc' => 'Comptes enseignants, délégués...',
+                        'icon' => 'user-cog',
+                        'color' => 'blue',
+                        'route' => route('admin.users.index')
+                    ],
+                    [
+                        'title' => 'Séances',
+                        'desc' => 'Vue globale de toutes les séances',
+                        'icon' => 'clock',
+                        'color' => 'purple',
+                        'route' => route('admin.seances.index')
+                    ],
+                    [
+                        'title' => 'Effectifs',
+                        'desc' => 'Suivi des présences et nombres',
+                        'icon' => 'chart-bar',
+                        'color' => 'cyan',
+                        'route' => route('admin.groupe-effectifs.index')
+                    ],
+                     [
+                        'title' => 'Salles & Lieux',
+                        'desc' => 'Disponibilité des salles',
+                        'icon' => 'door-open',
+                        'color' => 'pink',
+                        'route' => route('admin.salles.index')
+                    ],
+                ];
+            @endphp
+
+            @foreach($actions as $action)
+                <a href="{{ $action['route'] }}" class="group bg-white rounded-2xl p-6 shadow-soft border border-gray-100 hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-{{ $action['color'] }}-50 text-{{ $action['color'] }}-600 flex items-center justify-center text-xl group-hover:bg-{{ $action['color'] }}-600 group-hover:text-white transition-colors duration-300">
+                            <i class="fas fa-{{ $action['icon'] }}"></i>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-300 group-hover:text-{{ $action['color'] }}-500 transition-colors"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-1">{{ $action['title'] }}</h3>
+                    <p class="text-sm text-gray-500">{{ $action['desc'] }}</p>
+                </a>
+            @endforeach
+
         </div>
     </div>
 @endsection
